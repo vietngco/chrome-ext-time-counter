@@ -16,8 +16,10 @@ function Stopwatch(props) {
   const { timeData, setTimeData } = props;
   const [focus, setFocus] = useState(timeData.focus);
   const [breakTime, setBreakTime] = useState(timeData.break);
+  const [nOfCycles, setNOfCycles] = useState(timeData.nOfCycles);
   const [isBreak, setIsBreak] = useState(false);
   const [isCounting, setIsCounting] = useState(false);
+  const [countingTimeData, setCountingTimeData] = useState(timeData);
 
   const timerIdRef = useRef(0);
   const startHandler = () => {
@@ -62,6 +64,9 @@ function Stopwatch(props) {
   }, []);
   return (
     <div>
+      <div>
+        <div>n of cycle {nOfCycles} left</div>
+      </div>
       {isBreak ? (
         <div>running BREAK time: {breakTime}</div>
       ) : (
@@ -108,6 +113,9 @@ export default function FocusTab(props) {
 
     getDataFromSyncStorage();
   }, [counting]);
+  useEffect(() => {
+    chrome.storage.sync.set(timeData);
+  }, [timeData]);
   return (
     <>
       {counting ? (
@@ -141,8 +149,8 @@ function TimeClock(props) {
   }
   return (
     <>
-      time clock
-      <div>cycle: {timeData.nOfCycles} left</div>
+      <h4>Meta Data</h4>
+      <div>cycle: {timeData.nOfCycles}</div>
       <div>current time: {timeData.focus} left</div>
       <div>break time: {timeData.breakTime} left</div>
       <Button onClick={stopTimer}>stop your sesssion</Button>
@@ -151,26 +159,27 @@ function TimeClock(props) {
 }
 function ConfigurationMode(props) {
   const { startSession, setTimeData, timeData } = props;
+  console.log({ timeData });
   const cycleRef = React.useRef();
   const focusRef = React.useRef();
   const breakRef = React.useRef();
   function startTimer() {
-    setTimeData({
-      nOfCycles: cycleRef.current.value,
-      focus: focusRef.current.value,
-      breakTime: breakRef.current.value,
-    });
-    console.log("get in the function");
-    chrome.storage.sync.set(
-      {
-        nOfCycles: cycleRef.current.value,
-        focus: focusRef.current.value,
-        breakTime: breakRef.current.value,
-      },
-      function () {
-        console.log("value is set to ... for the timer");
-      }
-    );
+    // setTimeData({
+    //   nOfCycles: cycleRef.current.value,
+    //   focus: focusRef.current.value,
+    //   breakTime: breakRef.current.value,
+    // });
+    // console.log("get in the function");
+    // chrome.storage.sync.set(
+    //   {
+    //     nOfCycles: cycleRef.current.value,
+    //     focus: focusRef.current.value,
+    //     breakTime: breakRef.current.value,
+    //   },
+    //   function () {
+    //     console.log("value is set to ... for the timer");
+    //   }
+    // );
     startSession();
   }
   return (
@@ -207,6 +216,10 @@ function ConfigurationMode(props) {
                   label="Cycles"
                   type="number"
                   size="small"
+                  value={timeData ? timeData.nOfCycles : 0}
+                  onChange={(e) =>
+                    setTimeData((c) => ({ ...c, nOfCycles: e.target.value }))
+                  }
                   defaultValue={timeData ? timeData.nOfCycles : 0}
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{
@@ -247,6 +260,10 @@ function ConfigurationMode(props) {
                   label="Focus"
                   type="number"
                   size="small"
+                  value={timeData ? timeData.focus : 0}
+                  onChange={(e) =>
+                    setTimeData((c) => ({ ...c, focus: e.target.value }))
+                  }
                   defaultValue={timeData ? timeData.focus : 0}
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{
@@ -287,7 +304,11 @@ function ConfigurationMode(props) {
                   label="Break"
                   type="number"
                   size="small"
+                  value={timeData ? timeData.breakTime : 0}
                   defaultValue={timeData ? timeData.breakTime : 0}
+                  onChange={(e) =>
+                    setTimeData((c) => ({ ...c, breakTime: e.target.value }))
+                  }
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{
                     shrink: true,
