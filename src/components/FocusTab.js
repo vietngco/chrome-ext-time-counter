@@ -28,13 +28,22 @@ function Stopwatch(props) {
 
   const timerIdRef = useRef(0);
 
-  const startHandler = async () => {
-    let isBreak;
-
-    const result = await chrome.runtime.sendMessage({
-      type: "start-ticking",
-      payload: { isBreak: isBreak },
-    });
+  const startHandler = () => {
+    if (isBreak) {
+      timerIdRef.current = setInterval(() => {
+        setCountingTimeData((c) => ({
+          ...c,
+          timeBreakTime: c.timeBreakTime - 1,
+        }));
+      }, 1000);
+    } else {
+      timerIdRef.current = setInterval(() => {
+        setCountingTimeData((c) => ({
+          ...c,
+          timeFocus: c.timeFocus - 1,
+        }));
+      }, 1000);
+    }
     setTicking(true);
   };
   const stopHandler = () => {

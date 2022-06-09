@@ -94,14 +94,26 @@ export default function HomePage() {
       });
       setCountingTimeData({
         timeNOfCycles: parseInt(data.timeNOfCycles),
-        timeFocus: parseInt(data.timeFocus),
         timeBreakTime: parseInt(data.timeBreakTime),
+        timeFocus: parseInt(data.timeFocus),
       });
     }
     getFromStorage();
   }, []);
   React.useEffect(() => {
-    chrome.storage.sync.set(countingTimeData);
+    chrome.storage.sync.set({
+      timeNOfCycles: countingTimeData.timeNOfCycles,
+    });
+  }, [countingTimeData]);
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      timeBreakTime: countingTimeData.timeBreakTime,
+    });
+  }, [countingTimeData]);
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      timeFocus: countingTimeData.timeFocus,
+    });
   }, [countingTimeData]);
 
   React.useEffect(() => {
