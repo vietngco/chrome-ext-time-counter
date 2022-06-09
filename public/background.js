@@ -52,7 +52,7 @@ chrome.storage.sync.get(
   function (result) {
     // console.log("this is 4");
     if (result.timeNOfCycles === undefined || true) {
-      chrome.storage.sync.set({ timeNOfCycles: 10 });
+      chrome.storage.sync.set({ timeNOfCycles: 0 });
     }
     if (result.timeFocus === undefined) {
       chrome.storage.sync.set({ timeFocus: initTimeConfig.focus });
@@ -62,3 +62,23 @@ chrome.storage.sync.get(
     }
   }
 );
+
+// must calculate from the backend
+
+chrome.runtime.onMessage.addListener(async function (
+  request,
+  sender,
+  sendResponse
+) {
+  const { type, payload } = request;
+  console.log({ type });
+  if (type === "start-ticking") {
+    const data = await chrome.storage.sync.get([
+      "timeNOfCycles",
+      "timeBreakTime",
+      "timeFocus",
+    ]);
+    console.log("this is result I looke for", data);
+    sendResponse(data);
+  }
+});

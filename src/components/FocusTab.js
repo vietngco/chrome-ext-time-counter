@@ -11,8 +11,7 @@ import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 // import CommentIcon from "@mui/icons-material/Comment";
 import { Divider, TextField, Button } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
-import useStorageSyncHook from "../hooks/useStorageSyncHook";
-import { CollectionsOutlined, CompareSharp } from "@mui/icons-material";
+// import useStorageSyncHook from "../hooks/useStorageSyncHook";
 
 function Stopwatch(props) {
   const {
@@ -112,13 +111,17 @@ function Stopwatch(props) {
 }
 
 export default function FocusTab(props) {
-  const { counting, setCounting, setTicking, ticking, isBreak, setIsBreak } =
-    props;
-  const [timeData, setTimeData] = React.useState({
-    nOfCycles: 0,
-    focus: 0,
-    breakTime: 0,
-  });
+  const {
+    counting,
+    setCounting,
+    setTicking,
+    ticking,
+    isBreak,
+    setIsBreak,
+    timeData,
+    setTimeData,
+  } = props;
+
   const [countingTimeData, setCountingTimeData] = React.useState({
     timeNOfCycles: 0,
     timeFocus: 0,
@@ -155,35 +158,7 @@ export default function FocusTab(props) {
     }
     getDataFromSyncStorage();
   }, []);
-  useEffect(() => {
-    async function getDataFromSyncStorage() {
-      console.log("this is happening");
-      const storageTimeData = await chrome.storage.sync.get([
-        "nOfCycles",
-        "focus",
-        "breakTime",
-      ]);
-      // const storageCountingTimeData = await chrome.storage.sync.get([
-      //   "timeNOfCycles",
-      //   "timeFocus",
-      //   "timeBreakTime",
-      // ]);
-      setTimeData({
-        nOfCycles: parseInt(storageTimeData.nOfCycles),
-        focus: parseInt(storageTimeData.focus),
-        breakTime: parseInt(storageTimeData.breakTime),
-      });
-      // setCountingTimeData({
-      //   timeNOfCycles: parseInt(storageCountingTimeData.timeNOfCycles),
-      //   timeFocus: parseInt(storageCountingTimeData.timeFocus),
-      //   timeBreakTime: parseInt(storageCountingTimeData.timeBreakTime),
-      // });
-    }
-    getDataFromSyncStorage();
-  }, [counting]);
-  useEffect(() => {
-    chrome.storage.sync.set(timeData);
-  }, [timeData]);
+
   useEffect(() => {
     chrome.storage.sync.set(countingTimeData);
   }, [countingTimeData]);
@@ -221,21 +196,14 @@ export default function FocusTab(props) {
 }
 function TimeClock(props) {
   const { stopSession, setTimeData, timeData } = props;
-  function stopTimer() {
-    stopSession();
-    setTimeData({
-      nOfCycles: 0,
-      focus: 0,
-      breakTime: 0,
-    });
-  }
+
   return (
     <>
       <h4>Meta Data</h4>
       <div>cycle: {timeData.nOfCycles}</div>
       <div>current time: {timeData.focus} left</div>
       <div>break time: {timeData.breakTime} left</div>
-      <Button onClick={stopTimer}>stop your sesssion</Button>
+      <Button onClick={stopSession}>stop your sesssion</Button>
     </>
   );
 }
@@ -245,25 +213,7 @@ function ConfigurationMode(props) {
   const cycleRef = React.useRef();
   const focusRef = React.useRef();
   const breakRef = React.useRef();
-  function startTimer() {
-    // setTimeData({
-    //   nOfCycles: cycleRef.current.value,
-    //   focus: focusRef.current.value,
-    //   breakTime: breakRef.current.value,
-    // });
-    // console.log("get in the function");
-    // chrome.storage.sync.set(
-    //   {
-    //     nOfCycles: cycleRef.current.value,
-    //     focus: focusRef.current.value,
-    //     breakTime: breakRef.current.value,
-    //   },
-    //   function () {
-    //     console.log("value is set to ... for the timer");
-    //   }
-    // );
-    startSession();
-  }
+
   return (
     <div
       style={{
@@ -298,7 +248,7 @@ function ConfigurationMode(props) {
                   label="Cycles"
                   type="number"
                   size="small"
-                  value={timeData ? timeData.nOfCycles : 0}
+                  value={timeData ? timeData.nOfCycles : 1}
                   onChange={(e) =>
                     setTimeData((c) => ({ ...c, nOfCycles: e.target.value }))
                   }
@@ -342,7 +292,7 @@ function ConfigurationMode(props) {
                   label="Focus"
                   type="number"
                   size="small"
-                  value={timeData ? timeData.focus : 0}
+                  value={timeData ? timeData.focus : 1}
                   onChange={(e) =>
                     setTimeData((c) => ({ ...c, focus: e.target.value }))
                   }
@@ -386,7 +336,7 @@ function ConfigurationMode(props) {
                   label="Break"
                   type="number"
                   size="small"
-                  value={timeData ? timeData.breakTime : 0}
+                  value={timeData ? timeData.breakTime : 1}
                   defaultValue={timeData ? timeData.breakTime : 0}
                   onChange={(e) =>
                     setTimeData((c) => ({ ...c, breakTime: e.target.value }))
@@ -413,7 +363,7 @@ function ConfigurationMode(props) {
         variant="outlined"
         fullWidth
         sx={{ margin: 1 }}
-        onClick={startTimer}
+        onClick={startSession}
       >
         Start your session
       </Button>

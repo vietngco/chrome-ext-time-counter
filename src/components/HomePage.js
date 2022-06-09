@@ -1,3 +1,4 @@
+/*global chrome*/
 import * as React from "react";
 import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
@@ -48,6 +49,90 @@ export default function HomePage() {
   const [value, setValue] = React.useState(0);
   const [ticking, setTicking] = React.useState(false);
   const [isBreak, setIsBreak] = React.useState(false);
+  const [timeData, setTimeData] = React.useState({
+    nOfCycles: 0,
+    focus: 0,
+    breakTime: 0,
+  });
+  const [countingTimeData, setCountingTimeData] = useState({
+    timeNOfCycles: 0,
+    timeFocus: 0,
+    timeBreakTime: 0,
+  });
+  React.useEffect(() => {
+    const intervalID = setInterval(async () => {
+      const result = await chrome.runtime.sendMessage({
+        type: "update-from-storage",
+        payload: null,
+      });
+
+      console.log("this is the result I looked for", result);
+    }, 5000);
+    return () => clearInterval(intervalID);
+  }, []);
+  React.useEffect(() => {
+    async function getFromStorage() {
+      const data = await chrome.storage.sync.get([
+        "counting",
+        "ticking",
+        "isBreak",
+        "breakTime",
+        "focus",
+        "nOfCycles",
+        "timeNOfCycles",
+        "timeFocus",
+        "timeBreakTime",
+      ]);
+      setCounting(data.counting);
+      setTicking(data.ticking);
+      setIsBreak(data.isBreak);
+      setTimeData({
+        nOfCycles: data.nOfCycles,
+        focus: data.focus,
+        breakTime: data.breakTime,
+      });
+      setCountingTimeData({
+        timeNOfCycles: parseInt(data.timeNOfCycles),
+        timeFocus: parseInt(data.timeFocus),
+        timeBreakTime: parseInt(data.timeBreakTime),
+      });
+    }
+    getFromStorage();
+  }, []);
+  React.useEffect(() => {
+    chrome.storage.sync.set(countingTimeData);
+  }, [countingTimeData]);
+
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      counting: counting,
+    });
+  }, [counting]);
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      ticking: ticking,
+    });
+  }, [ticking]);
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      isBreak: isBreak,
+    });
+  }, [isBreak]);
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      nOfCycles: timeData.nOfCycles,
+    });
+  }, [timeData]);
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      focus: timeData.focus,
+    });
+  }, [timeData]);
+  React.useEffect(() => {
+    chrome.storage.sync.set({
+      breakTime: timeData.breakTime,
+    });
+  }, [timeData]);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -85,6 +170,10 @@ export default function HomePage() {
             ticking={ticking}
             isBreak={isBreak}
             setIsBreak={setIsBreak}
+            timeData={timeData}
+            setTimeData={setTimeData}
+            countingTimeData={countingTimeData}
+            setCountingTimeData={setCountingTimeData}
           />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>

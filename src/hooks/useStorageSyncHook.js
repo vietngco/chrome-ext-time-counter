@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 
 // NOTE: value, initvalue must be json object
-export default function useStorageSyncHook(initValue) {
+export default function useStorageSyncHook(key, initValue) {
   // key: string, initValue: any
-  const [value, setValue] = useState(initValue);
+  const [value, setValue] = useState();
 
   // useEffect(() => {
   //   chrome.storage.sync.set(value);
