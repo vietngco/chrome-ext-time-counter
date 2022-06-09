@@ -25,26 +25,16 @@ function Stopwatch(props) {
     setIsBreak,
   } = props;
   const [text, setText] = useState("");
-  console.log("RERENDERING1", countingTimeData);
-  console.log("RERENDERING2", timeData);
+
   const timerIdRef = useRef(0);
 
-  const startHandler = () => {
-    if (isBreak) {
-      timerIdRef.current = setInterval(() => {
-        setCountingTimeData((c) => ({
-          ...c,
-          timeBreakTime: c.timeBreakTime - 1,
-        }));
-      }, 1000);
-    } else {
-      timerIdRef.current = setInterval(() => {
-        setCountingTimeData((c) => ({
-          ...c,
-          timeFocus: c.timeFocus - 1,
-        }));
-      }, 1000);
-    }
+  const startHandler = async () => {
+    let isBreak;
+
+    const result = await chrome.runtime.sendMessage({
+      type: "start-ticking",
+      payload: { isBreak: isBreak },
+    });
     setTicking(true);
   };
   const stopHandler = () => {
@@ -124,11 +114,6 @@ export default function FocusTab(props) {
     setCountingTimeData,
   } = props;
 
-  // const [countingTimeData, setCountingTimeData] = React.useState({
-  //   timeNOfCycles: 0,
-  //   timeFocus: 0,
-  //   timeBreakTime: 0,
-  // });
   const startSession = () => {
     setCounting(true);
     const data = {
@@ -143,23 +128,6 @@ export default function FocusTab(props) {
     setCounting(false);
     setTicking(false);
   };
-  // console.log({ timeData });
-  // useEffect(() => {
-  //   async function getDataFromSyncStorage() {
-  //     const storageCountingTimeData = await chrome.storage.sync.get([
-  //       "timeNOfCycles",
-  //       "timeFocus",
-  //       "timeBreakTime",
-  //     ]);
-
-  //     setCountingTimeData({
-  //       timeNOfCycles: parseInt(storageCountingTimeData.timeNOfCycles),
-  //       timeFocus: parseInt(storageCountingTimeData.timeFocus),
-  //       timeBreakTime: parseInt(storageCountingTimeData.timeBreakTime),
-  //     });
-  //   }
-  //   getDataFromSyncStorage();
-  // }, []);
 
   return (
     <>

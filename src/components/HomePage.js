@@ -62,12 +62,13 @@ export default function HomePage() {
   React.useEffect(() => {
     const intervalID = setInterval(async () => {
       const result = await chrome.runtime.sendMessage({
-        type: "update-from-storage",
+        type: "update-timing-from-storage",
         payload: null,
       });
 
-      console.log("this is the result I looked for", result);
-    }, 5000);
+      // console.log("this is the result I looked for", result);
+      setCountingTimeData(result);
+    }, 1000);
     return () => clearInterval(intervalID);
   }, []);
   React.useEffect(() => {
