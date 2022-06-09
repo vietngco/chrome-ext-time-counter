@@ -12,65 +12,90 @@ import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import { Divider, TextField, Button } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
 import useStorageSyncHook from "../hooks/useStorageSyncHook";
+import { CollectionsOutlined, CompareSharp } from "@mui/icons-material";
 
 function Stopwatch(props) {
-  console.log("RERENDERING");
-  const { timeData, setTimeData, setTicking, ticking } = props;
-  const [isBreak, setIsBreak] = useState(false);
-  const [countingTimeData, setCountingTimeData] = useState({
-    ...timeData,
-    nOfCycles: timeData.nOfCycles + 1,
-  });
-
+  const {
+    timeData,
+    setTimeData,
+    setTicking,
+    ticking,
+    countingTimeData,
+    setCountingTimeData,
+    isBreak,
+    setIsBreak,
+  } = props;
+  const [text, setText] = useState("");
+  console.log("RERENDERING1", countingTimeData);
+  console.log("RERENDERING2", timeData);
   const timerIdRef = useRef(0);
+
   const startHandler = () => {
     if (isBreak) {
       timerIdRef.current = setInterval(() => {
-        setCountingTimeData((c) => ({ ...c, breakTime: c.breakTime - 1 }));
+        setCountingTimeData((c) => ({
+          ...c,
+          timeBreakTime: c.timeBreakTime - 1,
+        }));
       }, 1000);
     } else {
-      timerIdRef.current = setInterval(
-        () => setCountingTimeData((c) => ({ ...c, focus: c.focus - 1 })),
-        1000
-      );
+      timerIdRef.current = setInterval(() => {
+        setCountingTimeData((c) => ({
+          ...c,
+          timeFocus: c.timeFocus - 1,
+        }));
+      }, 1000);
     }
     setTicking(true);
   };
   const stopHandler = () => {
-    // cancle the setinterval loop
     clearInterval(timerIdRef.current);
     setTicking(false);
   };
-  // stop the focus and start the break
   useEffect(() => {
-    if (countingTimeData.focus <= 0 || countingTimeData.breakTime <= 0) {
-      setIsBreak(!isBreak);
+    if (countingTimeData.timeFocus <= 0) {
+      setIsBreak(true);
       setTicking(false);
-      return () => {
-        clearInterval(timerIdRef.current);
-      };
+      if (ticking) {
+        if (countingTimeData.nOfCycles - 1 === 0) {
+          setText("this is the end of the session");
+        }
+        setCountingTimeData((c) => ({
+          timeNOfCycles: c.timeNOfCycles - 1,
+          timeFocus: timeData.focus,
+          timeBreakTime: timeData.breakTime,
+        }));
+      }
+      clearInterval(timerIdRef.current);
+    }
+    if (countingTimeData.timeBreakTime <= 0) {
+      setIsBreak(false);
+      setTicking(false);
+      if (ticking) {
+        setCountingTimeData((c) => ({
+          ...c,
+          timeFocus: timeData.focus,
+          timeBreakTime: timeData.breakTime,
+        }));
+      }
+      clearInterval(timerIdRef.current);
     }
   }, [countingTimeData]);
+
   useEffect(() => {
-    if (isBreak === true)
-      setCountingTimeData((c) => ({
-        nOfCycles: c.nOfCycles - 1,
-        focus: timeData.focus,
-        breakTime: timeData.breakTime,
-      }));
-  }, [isBreak]);
-  useEffect(() => {
-    return () => clearInterval(timerIdRef.current);
+    return () => {
+      clearInterval(timerIdRef.current);
+    };
   }, []);
   return (
     <div>
       <div>
-        <div>n of cycle: {countingTimeData.nOfCycles} left</div>
+        <div>n of cycle: {countingTimeData.timeNOfCycles} left</div>
       </div>
       {isBreak ? (
-        <div>running BREAK time: {countingTimeData.breakTime}</div>
+        <div>running BREAK time: {countingTimeData.timeBreakTime}</div>
       ) : (
-        <div>running FOCUS time: {countingTimeData.focus}</div>
+        <div>running FOCUS time: {countingTimeData.timeFocus}</div>
       )}
 
       <div>
@@ -81,25 +106,55 @@ function Stopwatch(props) {
           Stop
         </button>
       </div>
+      <div color="red">{text}</div>
     </div>
   );
 }
 
 export default function FocusTab(props) {
-  const { counting, setCounting, setTicking, ticking } = props;
+  const { counting, setCounting, setTicking, ticking, isBreak, setIsBreak } =
+    props;
   const [timeData, setTimeData] = React.useState({
     nOfCycles: 0,
     focus: 0,
     breakTime: 0,
   });
+  const [countingTimeData, setCountingTimeData] = React.useState({
+    timeNOfCycles: 0,
+    timeFocus: 0,
+    timeBreakTime: 0,
+  });
   const startSession = () => {
     setCounting(true);
+    const data = {
+      timeNOfCycles: timeData.nOfCycles,
+      timeFocus: timeData.focus,
+      timeBreakTime: timeData.breakTime,
+    };
+    setCountingTimeData(data);
+    chrome.storage.sync.set(data);
   };
   const stopSession = () => {
     setCounting(false);
     setTicking(false);
   };
+  console.log({ timeData });
+  useEffect(() => {
+    async function getDataFromSyncStorage() {
+      const storageCountingTimeData = await chrome.storage.sync.get([
+        "timeNOfCycles",
+        "timeFocus",
+        "timeBreakTime",
+      ]);
 
+      setCountingTimeData({
+        timeNOfCycles: parseInt(storageCountingTimeData.timeNOfCycles),
+        timeFocus: parseInt(storageCountingTimeData.timeFocus),
+        timeBreakTime: parseInt(storageCountingTimeData.timeBreakTime),
+      });
+    }
+    getDataFromSyncStorage();
+  }, []);
   useEffect(() => {
     async function getDataFromSyncStorage() {
       console.log("this is happening");
@@ -108,19 +163,35 @@ export default function FocusTab(props) {
         "focus",
         "breakTime",
       ]);
-      console.log({ storageTimeData });
-      setTimeData(storageTimeData);
+      // const storageCountingTimeData = await chrome.storage.sync.get([
+      //   "timeNOfCycles",
+      //   "timeFocus",
+      //   "timeBreakTime",
+      // ]);
+      setTimeData({
+        nOfCycles: parseInt(storageTimeData.nOfCycles),
+        focus: parseInt(storageTimeData.focus),
+        breakTime: parseInt(storageTimeData.breakTime),
+      });
+      // setCountingTimeData({
+      //   timeNOfCycles: parseInt(storageCountingTimeData.timeNOfCycles),
+      //   timeFocus: parseInt(storageCountingTimeData.timeFocus),
+      //   timeBreakTime: parseInt(storageCountingTimeData.timeBreakTime),
+      // });
     }
-
     getDataFromSyncStorage();
   }, [counting]);
   useEffect(() => {
     chrome.storage.sync.set(timeData);
   }, [timeData]);
+  useEffect(() => {
+    chrome.storage.sync.set(countingTimeData);
+  }, [countingTimeData]);
   return (
     <>
       {counting ? (
         <>
+          {console.log("counting appear")}
           <TimeClock
             stopSession={stopSession}
             timeData={timeData}
@@ -132,6 +203,10 @@ export default function FocusTab(props) {
             setTimeData={setTimeData}
             setTicking={setTicking}
             ticking={ticking}
+            countingTimeData={countingTimeData}
+            setCountingTimeData={setCountingTimeData}
+            isBreak={isBreak}
+            setIsBreak={setIsBreak}
           />
         </>
       ) : (

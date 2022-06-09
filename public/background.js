@@ -16,8 +16,8 @@ let initTimeConfig = {
 chrome.storage.sync.get(
   ["nOfCycles", "focus", "breakTime", "key"],
   function (result) {
-    console.log("this is 1");
-    console.log(result);
+    // console.log("this is 1");
+    // console.log(result);
     if (result.nOfCycles === undefined) {
       chrome.storage.sync.set({ nOfCycles: initTimeConfig.nOfCycles });
     }
@@ -33,8 +33,8 @@ chrome.storage.sync.get(
 chrome.storage.sync.get(
   ["nOfCycles", "focus", "breakTime", "key"],
   function (result) {
-    console.log("this is 2");
-    console.log(result);
+    // console.log("this is 2");
+    // console.log(result);
   }
 );
 
@@ -50,9 +50,9 @@ setInterval(() => {
 chrome.storage.sync.get(
   ["timeNOfCycles", "timeFocus", "timeBreakTime"],
   function (result) {
-    console.log("this is 4");
-    if (result.timeNOfCycles === undefined) {
-      chrome.storage.sync.set({ timeNOfCycles: initTimeConfig.nOfCycles });
+    // console.log("this is 4");
+    if (result.timeNOfCycles === undefined || true) {
+      chrome.storage.sync.set({ timeNOfCycles: 10 });
     }
     if (result.timeFocus === undefined) {
       chrome.storage.sync.set({ timeFocus: initTimeConfig.focus });

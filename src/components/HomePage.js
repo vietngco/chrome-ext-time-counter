@@ -47,6 +47,7 @@ export default function HomePage() {
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
   const [ticking, setTicking] = React.useState(false);
+  const [isBreak, setIsBreak] = React.useState(false);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -82,6 +83,8 @@ export default function HomePage() {
             setCounting={setCounting}
             setTicking={setTicking}
             ticking={ticking}
+            isBreak={isBreak}
+            setIsBreak={setIsBreak}
           />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
