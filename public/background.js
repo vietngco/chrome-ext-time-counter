@@ -44,3 +44,21 @@ setInterval(() => {
     console.log(obj);
   });
 }, 5000);
+
+// timing
+
+chrome.storage.sync.get(
+  ["timeNOfCycles", "timeFocus", "timeBreakTime"],
+  function (result) {
+    console.log("this is 4");
+    if (result.timeNOfCycles === undefined) {
+      chrome.storage.sync.set({ timeNOfCycles: initTimeConfig.nOfCycles });
+    }
+    if (result.timeFocus === undefined) {
+      chrome.storage.sync.set({ timeFocus: initTimeConfig.focus });
+    }
+    if (result.timeBreakTime === undefined) {
+      chrome.storage.sync.set({ timeBreakTime: initTimeConfig.breakTime });
+    }
+  }
+);

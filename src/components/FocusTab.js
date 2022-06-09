@@ -13,51 +13,49 @@ import { Divider, TextField, Button } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
 
 function Stopwatch(props) {
-  const { timeData, setTimeData } = props;
-  const [focus, setFocus] = useState(timeData.focus);
-  const [breakTime, setBreakTime] = useState(timeData.break);
-  const [nOfCycles, setNOfCycles] = useState(timeData.nOfCycles);
+  const { timeData, setTimeData, setTicking, ticking } = props;
+  // const [focus, setFocus] = useState(timeData.focus);
+  // const [breakTime, setBreakTime] = useState(timeData.break);
+  // const [nOfCycles, setNOfCycles] = useState(timeData.nOfCycles);
   const [isBreak, setIsBreak] = useState(false);
-  const [isCounting, setIsCounting] = useState(false);
   const [countingTimeData, setCountingTimeData] = useState(timeData);
 
   const timerIdRef = useRef(0);
   const startHandler = () => {
     if (isBreak) {
       timerIdRef.current = setInterval(() => {
-        setBreakTime((c) => c - 1);
+        setCountingTimeData((c) => ({ ...c, breakTime: c.breakTime - 1 }));
       }, 1000);
     } else {
-      console.log("start running focus");
-
-      timerIdRef.current = setInterval(() => setFocus((c) => c - 1), 1000);
+      timerIdRef.current = setInterval(
+        () => setCountingTimeData((c) => ({ ...c, focus: c.focus - 1 })),
+        1000
+      );
     }
-    setIsCounting(true);
-    // chrome.runtime.sendMessage({ greeting: "hello" }, function (response) {
-    //   console.log(response.farewell);
-    // });
-    chrome.storage.sync.get(["key"], function (result) {
-      console.log("Value currently is " + result.key);
-    });
+    setTicking(true);
   };
   const stopHandler = () => {
     // cancle the setinterval loop
     clearInterval(timerIdRef.current);
-    setIsCounting(false);
+    setTicking(false);
   };
   // stop the focus and start the break
   useEffect(() => {
-    if (focus <= 0 || breakTime <= 0) {
+    if (countingTimeData.focus <= 0 || countingTimeData.breakTime <= 0) {
       setIsBreak(!isBreak);
-      setIsCounting(false);
+      setTicking(false);
       return () => {
         clearInterval(timerIdRef.current);
       };
     }
-  }, [focus, breakTime]);
+  }, [countingTimeData]);
   useEffect(() => {
-    setFocus(timeData.focus);
-    setBreakTime(timeData.breakTime);
+    if (isBreak === true)
+      setCountingTimeData((c) => ({
+        nOfCycles: c.nOfCycles - 1,
+        focus: timeData.focus,
+        breakTime: timeData.breakTime,
+      }));
   }, [isBreak]);
   useEffect(() => {
     return () => clearInterval(timerIdRef.current);
@@ -65,19 +63,19 @@ function Stopwatch(props) {
   return (
     <div>
       <div>
-        <div>n of cycle {nOfCycles} left</div>
+        <div>n of cycle: {countingTimeData.nOfCycles} left</div>
       </div>
       {isBreak ? (
-        <div>running BREAK time: {breakTime}</div>
+        <div>running BREAK time: {countingTimeData.breakTime}</div>
       ) : (
-        <div>running FOCUS time: {focus}</div>
+        <div>running FOCUS time: {countingTimeData.focus}</div>
       )}
 
       <div>
-        <button onClick={startHandler} disabled={isCounting}>
+        <button onClick={startHandler} disabled={ticking}>
           Start
         </button>
-        <button onClick={stopHandler} disabled={!isCounting}>
+        <button onClick={stopHandler} disabled={!ticking}>
           Stop
         </button>
       </div>
@@ -86,7 +84,7 @@ function Stopwatch(props) {
 }
 
 export default function FocusTab(props) {
-  const { counting, setCounting } = props;
+  const { counting, setCounting, setTicking, ticking } = props;
   const [timeData, setTimeData] = React.useState({
     nOfCycles: 0,
     focus: 0,
@@ -97,6 +95,7 @@ export default function FocusTab(props) {
   };
   const stopSession = () => {
     setCounting(false);
+    setTicking(false);
   };
 
   useEffect(() => {
@@ -125,7 +124,13 @@ export default function FocusTab(props) {
             timeData={timeData}
             setTimeData={setTimeData}
           />
-          <Stopwatch timeData={timeData} setTimeData={setTimeData} />
+          <Divider />
+          <Stopwatch
+            timeData={timeData}
+            setTimeData={setTimeData}
+            setTicking={setTicking}
+            ticking={ticking}
+          />
         </>
       ) : (
         <ConfigurationMode

@@ -46,7 +46,7 @@ export default function HomePage() {
   const [counting, setCounting] = React.useState(false);
   const theme = useTheme();
   const [value, setValue] = React.useState(0);
-
+  const [ticking, setTicking] = React.useState(false);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -66,9 +66,9 @@ export default function HomePage() {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          <Tab label="Focus Mode" {...a11yProps(0)} />
-          <Tab label="Block Sites" {...a11yProps(1)} />
-          <Tab label="Insights" {...a11yProps(2)} />
+          <Tab label="Focus Mode" {...a11yProps(0)} disabled={ticking} />
+          <Tab label="Block Sites" {...a11yProps(1)} disabled={ticking} />
+          <Tab label="Insights" {...a11yProps(2)} disabled={ticking} />
         </Tabs>
       </AppBar>
       <SwipeableViews
@@ -77,7 +77,12 @@ export default function HomePage() {
         onChangeIndex={handleChangeIndex}
       >
         <TabPanel value={value} index={0} dir={theme.direction}>
-          <FocusTab counting={counting} setCounting={setCounting} />
+          <FocusTab
+            counting={counting}
+            setCounting={setCounting}
+            setTicking={setTicking}
+            ticking={ticking}
+          />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
           Item Two
