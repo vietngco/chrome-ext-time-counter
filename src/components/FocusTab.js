@@ -11,14 +11,16 @@ import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 // import CommentIcon from "@mui/icons-material/Comment";
 import { Divider, TextField, Button } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
+import useStorageSyncHook from "../hooks/useStorageSyncHook";
 
 function Stopwatch(props) {
+  console.log("RERENDERING");
   const { timeData, setTimeData, setTicking, ticking } = props;
-  // const [focus, setFocus] = useState(timeData.focus);
-  // const [breakTime, setBreakTime] = useState(timeData.break);
-  // const [nOfCycles, setNOfCycles] = useState(timeData.nOfCycles);
   const [isBreak, setIsBreak] = useState(false);
-  const [countingTimeData, setCountingTimeData] = useState(timeData);
+  const [countingTimeData, setCountingTimeData] = useState({
+    ...timeData,
+    nOfCycles: timeData.nOfCycles + 1,
+  });
 
   const timerIdRef = useRef(0);
   const startHandler = () => {
