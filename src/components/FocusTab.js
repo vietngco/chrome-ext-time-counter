@@ -120,13 +120,15 @@ export default function FocusTab(props) {
     setIsBreak,
     timeData,
     setTimeData,
+    countingTimeData,
+    setCountingTimeData,
   } = props;
 
-  const [countingTimeData, setCountingTimeData] = React.useState({
-    timeNOfCycles: 0,
-    timeFocus: 0,
-    timeBreakTime: 0,
-  });
+  // const [countingTimeData, setCountingTimeData] = React.useState({
+  //   timeNOfCycles: 0,
+  //   timeFocus: 0,
+  //   timeBreakTime: 0,
+  // });
   const startSession = () => {
     setCounting(true);
     const data = {
@@ -141,27 +143,24 @@ export default function FocusTab(props) {
     setCounting(false);
     setTicking(false);
   };
-  console.log({ timeData });
-  useEffect(() => {
-    async function getDataFromSyncStorage() {
-      const storageCountingTimeData = await chrome.storage.sync.get([
-        "timeNOfCycles",
-        "timeFocus",
-        "timeBreakTime",
-      ]);
+  // console.log({ timeData });
+  // useEffect(() => {
+  //   async function getDataFromSyncStorage() {
+  //     const storageCountingTimeData = await chrome.storage.sync.get([
+  //       "timeNOfCycles",
+  //       "timeFocus",
+  //       "timeBreakTime",
+  //     ]);
 
-      setCountingTimeData({
-        timeNOfCycles: parseInt(storageCountingTimeData.timeNOfCycles),
-        timeFocus: parseInt(storageCountingTimeData.timeFocus),
-        timeBreakTime: parseInt(storageCountingTimeData.timeBreakTime),
-      });
-    }
-    getDataFromSyncStorage();
-  }, []);
+  //     setCountingTimeData({
+  //       timeNOfCycles: parseInt(storageCountingTimeData.timeNOfCycles),
+  //       timeFocus: parseInt(storageCountingTimeData.timeFocus),
+  //       timeBreakTime: parseInt(storageCountingTimeData.timeBreakTime),
+  //     });
+  //   }
+  //   getDataFromSyncStorage();
+  // }, []);
 
-  useEffect(() => {
-    chrome.storage.sync.set(countingTimeData);
-  }, [countingTimeData]);
   return (
     <>
       {counting ? (

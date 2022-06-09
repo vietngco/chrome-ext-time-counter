@@ -54,7 +54,7 @@ export default function HomePage() {
     focus: 0,
     breakTime: 0,
   });
-  const [countingTimeData, setCountingTimeData] = useState({
+  const [countingTimeData, setCountingTimeData] = React.useState({
     timeNOfCycles: 0,
     timeFocus: 0,
     timeBreakTime: 0,
