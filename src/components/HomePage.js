@@ -68,8 +68,8 @@ export default function HomePage() {
         },
         async function (res) {
           console.log("this is the result I looked for", res);
-          const data = await res();
-          console.log({ data });
+          // const data = await res();
+          // console.log({ data });
         }
       );
 

@@ -73,13 +73,12 @@ chrome.runtime.onMessage.addListener(async function (
   const { type, payload } = request;
   console.log({ type });
   if (type === "update-timing-from-storage") {
-    const data = chrome.storage.sync.get([
-      "timeNOfCycles",
-      "timeBreakTime",
-      "timeFocus",
-    ]);
-    console.log("this is result I looke for", data);
-    sendResponse(data);
+    const user = {
+      username: "demo-user",
+    };
+    if (message === "get-user-data") {
+      sendResponse(user);
+    }
   }
   if (type === "start-ticking") {
     const { isBreak } = payload;
