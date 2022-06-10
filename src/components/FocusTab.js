@@ -26,8 +26,6 @@ function Stopwatch(props) {
   } = props;
   const [text, setText] = useState("");
 
-  const timerIdRef = useRef(0);
-
   const startHandler = async () => {
     const data = await chrome.runtime.sendMessage({
       type: "start-ticking",
@@ -42,7 +40,6 @@ function Stopwatch(props) {
     setTicking(true);
   };
   const stopHandler = () => {
-    // clearInterval(timerIdRef.current);
     setTicking(false);
   };
   // useEffect(() => {
