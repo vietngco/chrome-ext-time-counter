@@ -11,7 +11,7 @@ import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 // import CommentIcon from "@mui/icons-material/Comment";
 import { Divider, TextField, Button } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
-// import useStorageSyncHook from "../hooks/useStorageSyncHook";
+// import useStoragelocalHook from "../hooks/useStoragelocalHook";
 
 function Stopwatch(props) {
   const {
@@ -28,57 +28,62 @@ function Stopwatch(props) {
 
   const timerIdRef = useRef(0);
 
-  const startHandler = () => {
-    if (isBreak) {
-      timerIdRef.current = setInterval(() => {
-        setCountingTimeData((c) => ({
-          ...c,
-          timeBreakTime: c.timeBreakTime - 1,
-        }));
-      }, 1000);
-    } else {
-      timerIdRef.current = setInterval(() => {
-        setCountingTimeData((c) => ({
-          ...c,
-          timeFocus: c.timeFocus - 1,
-        }));
-      }, 1000);
-    }
+  const startHandler = async () => {
+    // if (isBreak) {
+    //   timerIdRef.current = setInterval(() => {
+    //     setCountingTimeData((c) => ({
+    //       ...c,
+    //       timeBreakTime: c.timeBreakTime - 1,
+    //     }));
+    //   }, 1000);
+    // } else {
+    //   timerIdRef.current = setInterval(() => {
+    //     setCountingTimeData((c) => ({
+    //       ...c,
+    //       timeFocus: c.timeFocus - 1,
+    //     }));
+    //   }, 1000);
+    // }
+    const data = await chrome.runtime.sendMessage({
+      type: "start-ticking",
+      payload: { time: countingTimeData.timeFocus },
+    });
+
     setTicking(true);
   };
   const stopHandler = () => {
-    clearInterval(timerIdRef.current);
+    // clearInterval(timerIdRef.current);
     setTicking(false);
   };
-  useEffect(() => {
-    if (countingTimeData.timeFocus <= 0) {
-      setIsBreak(true);
-      setTicking(false);
-      if (ticking) {
-        if (countingTimeData.nOfCycles - 1 === 0) {
-          setText("this is the end of the session");
-        }
-        setCountingTimeData((c) => ({
-          timeNOfCycles: c.timeNOfCycles - 1,
-          timeFocus: timeData.focus,
-          timeBreakTime: timeData.breakTime,
-        }));
-      }
-      clearInterval(timerIdRef.current);
-    }
-    if (countingTimeData.timeBreakTime <= 0) {
-      setIsBreak(false);
-      setTicking(false);
-      if (ticking) {
-        setCountingTimeData((c) => ({
-          ...c,
-          timeFocus: timeData.focus,
-          timeBreakTime: timeData.breakTime,
-        }));
-      }
-      clearInterval(timerIdRef.current);
-    }
-  }, [countingTimeData]);
+  // useEffect(() => {
+  //   if (countingTimeData.timeFocus <= 0) {
+  //     setIsBreak(true);
+  //     setTicking(false);
+  //     if (ticking) {
+  //       if (countingTimeData.nOfCycles - 1 === 0) {
+  //         setText("this is the end of the session");
+  //       }
+  //       setCountingTimeData((c) => ({
+  //         timeNOfCycles: c.timeNOfCycles - 1,
+  //         timeFocus: timeData.focus,
+  //         timeBreakTime: timeData.breakTime,
+  //       }));
+  //     }
+  //     clearInterval(timerIdRef.current);
+  //   }
+  //   if (countingTimeData.timeBreakTime <= 0) {
+  //     setIsBreak(false);
+  //     setTicking(false);
+  //     if (ticking) {
+  //       setCountingTimeData((c) => ({
+  //         ...c,
+  //         timeFocus: timeData.focus,
+  //         timeBreakTime: timeData.breakTime,
+  //       }));
+  //     }
+  //     clearInterval(timerIdRef.current);
+  //   }
+  // }, [countingTimeData]);
 
   useEffect(() => {
     return () => {
@@ -126,12 +131,11 @@ export default function FocusTab(props) {
   const startSession = () => {
     setCounting(true);
     const data = {
-      timeNOfCycles: timeData.nOfCycles,
-      timeFocus: timeData.focus,
-      timeBreakTime: timeData.breakTime,
+      timeNOfCycles: parseInt(timeData.nOfCycles),
+      timeFocus: parseInt(timeData.focus),
+      timeBreakTime: parseInt(timeData.breakTime),
     };
     setCountingTimeData(data);
-    chrome.storage.sync.set(data);
   };
   const stopSession = () => {
     setCounting(false);
@@ -161,11 +165,14 @@ export default function FocusTab(props) {
           />
         </>
       ) : (
-        <ConfigurationMode
-          startSession={startSession}
-          setTimeData={setTimeData}
-          timeData={timeData}
-        />
+        <>
+          {console.log("counting has not appear yet ")}
+          <ConfigurationMode
+            startSession={startSession}
+            setTimeData={setTimeData}
+            timeData={timeData}
+          />{" "}
+        </>
       )}
     </>
   );
@@ -226,7 +233,10 @@ function ConfigurationMode(props) {
                   size="small"
                   value={timeData ? timeData.nOfCycles : 1}
                   onChange={(e) =>
-                    setTimeData((c) => ({ ...c, nOfCycles: e.target.value }))
+                    setTimeData((c) => ({
+                      ...c,
+                      nOfCycles: parseInt(e.target.value),
+                    }))
                   }
                   defaultValue={timeData ? timeData.nOfCycles : 0}
                   inputProps={{ style: { width: 70 } }}
@@ -270,7 +280,10 @@ function ConfigurationMode(props) {
                   size="small"
                   value={timeData ? timeData.focus : 1}
                   onChange={(e) =>
-                    setTimeData((c) => ({ ...c, focus: e.target.value }))
+                    setTimeData((c) => ({
+                      ...c,
+                      focus: parseInt(e.target.value),
+                    }))
                   }
                   defaultValue={timeData ? timeData.focus : 0}
                   inputProps={{ style: { width: 70 } }}
@@ -315,7 +328,10 @@ function ConfigurationMode(props) {
                   value={timeData ? timeData.breakTime : 1}
                   defaultValue={timeData ? timeData.breakTime : 0}
                   onChange={(e) =>
-                    setTimeData((c) => ({ ...c, breakTime: e.target.value }))
+                    setTimeData((c) => ({
+                      ...c,
+                      breakTime: parseInt(e.target.value),
+                    }))
                   }
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{

@@ -59,27 +59,10 @@ export default function HomePage() {
     timeFocus: 0,
     timeBreakTime: 0,
   });
-  React.useEffect(() => {
-    const intervalID = setInterval(async () => {
-      chrome.runtime.sendMessage(
-        {
-          type: "update-timing-from-storage",
-          payload: null,
-        },
-        async function (res) {
-          console.log("this is the result I looked for", res);
-          // const data = await res();
-          // console.log({ data });
-        }
-      );
 
-      // setCountingTimeData(result);
-    }, 5000);
-    return () => clearInterval(intervalID);
-  }, []);
   React.useEffect(() => {
     async function getFromStorage() {
-      const data = await chrome.storage.sync.get([
+      const data = await chrome.storage.local.get([
         "counting",
         "ticking",
         "isBreak",
@@ -103,52 +86,85 @@ export default function HomePage() {
       //   timeBreakTime: parseInt(data.timeBreakTime),
       //   timeFocus: parseInt(data.timeFocus),
       // });
+      // const data1 = await chrome.runtime.sendMessage({
+      //   type: "update-timing-from-storage",
+      //   payload: null,
+      // });
+    }
+    async function getFromStorageForCounting() {
+      const data = await chrome.storage.local.get([
+        "timeNOfCycles",
+        "timeFocus",
+        "timeBreakTime",
+      ]);
+      setCountingTimeData({
+        timeNOfCycles: parseInt(data.timeNOfCycles),
+        timeBreakTime: parseInt(data.timeBreakTime),
+        timeFocus: parseInt(data.timeFocus),
+      });
     }
     getFromStorage();
+    // const id = setInterval(() => {
+    getFromStorageForCounting();
+    // }, 3000);
+    // return () => clearInterval(id);
+    // setTimeout(sync () => {
+    //   const data1 = await chrome.runtime.sendMessage({
+    //     type: "update-timing-from-storage",
+    //     payload: null,
+    //   });
+    //   console.log("is it a real data lol", data1);
+    // setCountingTimeData({
+    //   timeNOfCycles: parseInt(data1.timeNOfCycles),
+    //   timeBreakTime: parseInt(data1.timeBreakTime),
+    //   timeFocus: parseInt(data1.timeFocus),
+    // });
+    // }, 1000);
   }, []);
+
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       timeNOfCycles: countingTimeData.timeNOfCycles,
     });
   }, [countingTimeData]);
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       timeBreakTime: countingTimeData.timeBreakTime,
     });
   }, [countingTimeData]);
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       timeFocus: countingTimeData.timeFocus,
     });
   }, [countingTimeData]);
 
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       counting: counting,
     });
   }, [counting]);
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       ticking: ticking,
     });
   }, [ticking]);
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       isBreak: isBreak,
     });
   }, [isBreak]);
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       nOfCycles: timeData.nOfCycles,
     });
   }, [timeData]);
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       focus: timeData.focus,
     });
   }, [timeData]);
   React.useEffect(() => {
-    chrome.storage.sync.set({
+    chrome.storage.local.set({
       breakTime: timeData.breakTime,
     });
   }, [timeData]);
