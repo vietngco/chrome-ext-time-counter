@@ -61,14 +61,20 @@ export default function HomePage() {
   });
   React.useEffect(() => {
     const intervalID = setInterval(async () => {
-      const result = await chrome.runtime.sendMessage({
-        type: "update-timing-from-storage",
-        payload: null,
-      });
+      chrome.runtime.sendMessage(
+        {
+          type: "update-timing-from-storage",
+          payload: null,
+        },
+        async function (res) {
+          console.log("this is the result I looked for", res);
+          const data = await res();
+          console.log({ data });
+        }
+      );
 
-      // console.log("this is the result I looked for", result);
-      setCountingTimeData(result);
-    }, 1000);
+      // setCountingTimeData(result);
+    }, 5000);
     return () => clearInterval(intervalID);
   }, []);
   React.useEffect(() => {
@@ -80,9 +86,9 @@ export default function HomePage() {
         "breakTime",
         "focus",
         "nOfCycles",
-        "timeNOfCycles",
-        "timeFocus",
-        "timeBreakTime",
+        // "timeNOfCycles",
+        // "timeFocus",
+        // "timeBreakTime",
       ]);
       setCounting(data.counting);
       setTicking(data.ticking);
@@ -92,11 +98,11 @@ export default function HomePage() {
         focus: data.focus,
         breakTime: data.breakTime,
       });
-      setCountingTimeData({
-        timeNOfCycles: parseInt(data.timeNOfCycles),
-        timeBreakTime: parseInt(data.timeBreakTime),
-        timeFocus: parseInt(data.timeFocus),
-      });
+      // setCountingTimeData({
+      //   timeNOfCycles: parseInt(data.timeNOfCycles),
+      //   timeBreakTime: parseInt(data.timeBreakTime),
+      //   timeFocus: parseInt(data.timeFocus),
+      // });
     }
     getFromStorage();
   }, []);

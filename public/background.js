@@ -71,33 +71,33 @@ chrome.runtime.onMessage.addListener(async function (
   sendResponse
 ) {
   const { type, payload } = request;
-  // console.log({ type });
+  console.log({ type });
   if (type === "update-timing-from-storage") {
-    const data = await chrome.storage.sync.get([
+    const data = chrome.storage.sync.get([
       "timeNOfCycles",
       "timeBreakTime",
       "timeFocus",
     ]);
-    // console.log("this is result I looke for", data);
+    console.log("this is result I looke for", data);
     sendResponse(data);
   }
-  // if (type === "start-ticking") {
-  //   const { isBreak } = payload;
-  //   const intervalID = setInterval(async () => {
-  //     if (isBreak) {
-  //       const data = await chrome.storage.sync.get("timeBreakTime");
-  //       chrome.storage.sync.set({ timeBreakTime: data.timeBreakTime - 1 });
-  //     } else {
-  //       const data = await chrome.storage.sync.get("timeFocus");
-  //       chrome.storage.sync.set({ timeFocus: data.timeFocus - 1 });
-  //     }
-  //   }, 1000);
-  //   chrome.sync.storage.set({ intervalID });
-  // }
-  // if (type === "stop-ticking") {
-  //   const data = await chrome.storage.sync.get("intervalID");
-  //   clearInterval(data.intervalID);
-  // }
-  // if (type === "end-session") {
-  // }
+  if (type === "start-ticking") {
+    const { isBreak } = payload;
+    const intervalID = setInterval(async () => {
+      if (isBreak) {
+        const data = await chrome.storage.sync.get("timeBreakTime");
+        chrome.storage.sync.set({ timeBreakTime: data.timeBreakTime - 1 });
+      } else {
+        const data = await chrome.storage.sync.get("timeFocus");
+        chrome.storage.sync.set({ timeFocus: data.timeFocus - 1 });
+      }
+    }, 1000);
+    chrome.sync.storage.set({ intervalID });
+  }
+  if (type === "stop-ticking") {
+    const data = await chrome.storage.sync.get("intervalID");
+    clearInterval(data.intervalID);
+  }
+  if (type === "end-session") {
+  }
 });
