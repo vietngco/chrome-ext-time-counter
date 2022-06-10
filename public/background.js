@@ -139,14 +139,16 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
     chrome.storage.local.set({ intervalID: cur_intervalID });
     setTimeout(() => {
       chrome.storage.local.get("intervalID", function ({ intervalID }) {
+        clearInterval(cur_intervalID);
+
         if (intervalID !== -1) {
-          clearInterval(cur_intervalID);
           console.log("CLEAR THE INTERVAL ID");
           chrome.storage.local.get(
             ["timeNOfCycles", "isBreak", "focus", "breakTime"],
             function ({ timeNOfCycles, isBreak, focus, breakTime }) {
               chrome.storage.local.set({
-                timeFocus: isBreak ? focus : breakTime,
+                timeFocus: focus,
+                timeBreakTime: breakTime,
                 ticking: false,
                 isBreak: !isBreak,
                 timeNOfCycles: isBreak ? timeNOfCycles - 1 : timeNOfCycles,

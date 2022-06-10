@@ -178,7 +178,9 @@ function TimeClock(props) {
       <div>cycle: {timeData.nOfCycles}</div>
       <div>current time: {timeData.focus} left</div>
       <div>break time: {timeData.breakTime} left</div>
-      <Button onClick={stopSession}>stop your sesssion</Button>
+      <Button onClick={stopSession} disabled={ticking}>
+        stop your sesssion
+      </Button>
     </>
   );
 }
