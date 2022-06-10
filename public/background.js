@@ -118,7 +118,7 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
     // }
     const { time, isBreak } = payload;
     console.log("START TICKING ....", time, isBreak);
-    let cur_intervalID;
+    let cur_intervalID = -1;
     if (isBreak) {
       cur_intervalID = setInterval(() => {
         chrome.storage.local.get("timeBreakTime", function ({ timeBreakTime }) {
@@ -136,24 +136,33 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
         });
       }, 1000);
     }
+    chrome.storage.local.set({ intervalID: cur_intervalID });
     setTimeout(() => {
-      clearInterval(cur_intervalID);
-      chrome.storage.local.get(
-        ["timeNOfCycles", "isBreak", "focus", "breakTime"],
-        function ({ timeNOfCycles, isBreak, focus, breakTime }) {
-          chrome.storage.local.set({
-            timeFocus: isBreak ? focus : breakTime,
-            ticking: false,
-            isBreak: !isBreak,
-            timeNOfCycles: isBreak ? timeNOfCycles - 1 : timeNOfCycles,
-          });
+      chrome.storage.local.get("intervalID", function ({ intervalID }) {
+        if (intervalID !== -1) {
+          clearInterval(cur_intervalID);
+          console.log("CLEAR THE INTERVAL ID");
+          chrome.storage.local.get(
+            ["timeNOfCycles", "isBreak", "focus", "breakTime"],
+            function ({ timeNOfCycles, isBreak, focus, breakTime }) {
+              chrome.storage.local.set({
+                timeFocus: isBreak ? focus : breakTime,
+                ticking: false,
+                isBreak: !isBreak,
+                timeNOfCycles: isBreak ? timeNOfCycles - 1 : timeNOfCycles,
+              });
+            }
+          );
         }
-      );
-
-      console.log("CLEAR THE INTERVAL ID");
+      });
     }, time * 1000);
   }
   if (type === "press-halt-ticking") {
+    chrome.storage.local.get(["intervalID"], function ({ intervalID }) {
+      console.log("clear the intervalid by pressing the button");
+      clearInterval(intervalID);
+      chrome.storage.local.set({ intervalID: -1 });
+    });
   }
   if (type === "acutal-stop-ticking") return true; // uncomment this line to fix error
 });

@@ -39,7 +39,11 @@ function Stopwatch(props) {
 
     setTicking(true);
   };
-  const stopHandler = () => {
+  const stopHandler = async () => {
+    const data = await chrome.runtime.sendMessage({
+      type: "press-halt-ticking",
+      payload: null,
+    });
     setTicking(false);
   };
   // useEffect(() => {
@@ -72,11 +76,12 @@ function Stopwatch(props) {
   //   }
   // }, [countingTimeData]);
 
-  useEffect(() => {
-    return () => {
-      clearInterval(timerIdRef.current);
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     chrome.storage.get
+  //     clearInterval(timerIdRef.current);
+  //   };
+  // }, []);
   return (
     <div>
       <div>
