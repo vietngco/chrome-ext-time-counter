@@ -116,18 +116,40 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
     // chrome.storage.local.get("intervalID"), function({intervalID}){
 
     // }
-    const { time } = payload;
-    console.log("START TICKING ....", time);
-
-    let cur_intervalID = setInterval(() => {
-      chrome.storage.local.get("timeFocus", function ({ timeFocus }) {
-        console.log("UPDATING THE FOCUSTIME");
-        chrome.storage.local.set({ timeFocus: parseInt(timeFocus) - 1 });
-      });
-    }, 1000);
+    const { time, isBreak } = payload;
+    console.log("START TICKING ....", time, isBreak);
+    let cur_intervalID;
+    if (isBreak) {
+      cur_intervalID = setInterval(() => {
+        chrome.storage.local.get("timeBreakTime", function ({ timeBreakTime }) {
+          console.log("UPDATING THE BREAKTIME");
+          chrome.storage.local.set({
+            timeBreakTime: parseInt(timeBreakTime) - 1,
+          });
+        });
+      }, 1000);
+    } else {
+      cur_intervalID = setInterval(() => {
+        chrome.storage.local.get("timeFocus", function ({ timeFocus }) {
+          console.log("UPDATING THE FOCUSTIME");
+          chrome.storage.local.set({ timeFocus: parseInt(timeFocus) - 1 });
+        });
+      }, 1000);
+    }
     setTimeout(() => {
       clearInterval(cur_intervalID);
-      chrome.storage.local.set({ timeFocus: time });
+      chrome.storage.local.get(
+        ["timeNOfCycles", "isBreak"],
+        function ({ timeNOfCycles, isBreak }) {
+          chrome.storage.local.set({
+            timeFocus: time,
+            ticking: false,
+            isBreak: !isBreak,
+            timeNOfCycles: isBreak ? timeNOfCycles - 1 : timeNOfCycles,
+          });
+        }
+      );
+
       console.log("CLEAR THE INTERVAL ID");
     }, time * 1000);
   }

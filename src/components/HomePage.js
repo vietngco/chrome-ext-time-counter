@@ -69,9 +69,9 @@ export default function HomePage() {
         "breakTime",
         "focus",
         "nOfCycles",
-        // "timeNOfCycles",
-        // "timeFocus",
-        // "timeBreakTime",
+        "timeNOfCycles",
+        "timeFocus",
+        "timeBreakTime",
       ]);
       setCounting(data.counting);
       setTicking(data.ticking);
@@ -81,33 +81,34 @@ export default function HomePage() {
         focus: data.focus,
         breakTime: data.breakTime,
       });
-      // setCountingTimeData({
-      //   timeNOfCycles: parseInt(data.timeNOfCycles),
-      //   timeBreakTime: parseInt(data.timeBreakTime),
-      //   timeFocus: parseInt(data.timeFocus),
-      // });
-      // const data1 = await chrome.runtime.sendMessage({
-      //   type: "update-timing-from-storage",
-      //   payload: null,
-      // });
-    }
-    async function getFromStorageForCounting() {
-      const data = await chrome.storage.local.get([
-        "timeNOfCycles",
-        "timeFocus",
-        "timeBreakTime",
-      ]);
       setCountingTimeData({
         timeNOfCycles: parseInt(data.timeNOfCycles),
         timeBreakTime: parseInt(data.timeBreakTime),
         timeFocus: parseInt(data.timeFocus),
       });
+      // const data1 = await chrome.runtime.sendMessage({
+      //   type: "update-timing-from-storage",
+      //   payload: null,
+      // });
     }
+    // async function getFromStorageForCounting() {
+    //   const data = await chrome.storage.local.get([
+    //     "timeNOfCycles",
+    //     "timeFocus",
+    //     "timeBreakTime",
+    //   ]);
+    //   setCountingTimeData({
+    //     timeNOfCycles: parseInt(data.timeNOfCycles),
+    //     timeBreakTime: parseInt(data.timeBreakTime),
+    //     timeFocus: parseInt(data.timeFocus),
+    //   });
+    // }
     getFromStorage();
-    // const id = setInterval(() => {
-    getFromStorageForCounting();
-    // }, 3000);
-    // return () => clearInterval(id);
+    const id = setInterval(() => {
+      // getFromStorageForCounting();
+      getFromStorage();
+    }, 3000);
+    return () => clearInterval(id);
     // setTimeout(sync () => {
     //   const data1 = await chrome.runtime.sendMessage({
     //     type: "update-timing-from-storage",
