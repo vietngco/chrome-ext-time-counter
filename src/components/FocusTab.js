@@ -46,42 +46,9 @@ function Stopwatch(props) {
     });
     setTicking(false);
   };
-  // useEffect(() => {
-  //   if (countingTimeData.timeFocus <= 0) {
-  //     setIsBreak(true);
-  //     setTicking(false);
-  //     if (ticking) {
-  //       if (countingTimeData.nOfCycles - 1 === 0) {
-  //         setText("this is the end of the session");
-  //       }
-  //       setCountingTimeData((c) => ({
-  //         timeNOfCycles: c.timeNOfCycles - 1,
-  //         timeFocus: timeData.focus,
-  //         timeBreakTime: timeData.breakTime,
-  //       }));
-  //     }
-  //     clearInterval(timerIdRef.current);
-  //   }
-  //   if (countingTimeData.timeBreakTime <= 0) {
-  //     setIsBreak(false);
-  //     setTicking(false);
-  //     if (ticking) {
-  //       setCountingTimeData((c) => ({
-  //         ...c,
-  //         timeFocus: timeData.focus,
-  //         timeBreakTime: timeData.breakTime,
-  //       }));
-  //     }
-  //     clearInterval(timerIdRef.current);
-  //   }
-  // }, [countingTimeData]);
-
-  // useEffect(() => {
-  //   return () => {
-  //     chrome.storage.get
-  //     clearInterval(timerIdRef.current);
-  //   };
-  // }, []);
+  function timerNext() {
+    setIsBreak((c) => !c);
+  }
   return (
     <div>
       <div>
@@ -99,6 +66,9 @@ function Stopwatch(props) {
         </button>
         <button onClick={stopHandler} disabled={!ticking}>
           Stop
+        </button>
+        <button onClick={timerNext} disabled={!ticking}>
+          Next
         </button>
       </div>
       <div color="red">{text}</div>
@@ -127,6 +97,7 @@ export default function FocusTab(props) {
       timeFocus: parseInt(timeData.focus),
       timeBreakTime: parseInt(timeData.breakTime),
     };
+    setIsBreak(false);
     setCountingTimeData(data);
   };
   const stopSession = () => {
