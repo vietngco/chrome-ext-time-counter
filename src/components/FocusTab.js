@@ -143,6 +143,7 @@ export default function FocusTab(props) {
             stopSession={stopSession}
             timeData={timeData}
             setTimeData={setTimeData}
+            ticking={ticking}
           />
           <Divider />
           <Stopwatch
@@ -170,7 +171,7 @@ export default function FocusTab(props) {
   );
 }
 function TimeClock(props) {
-  const { stopSession, setTimeData, timeData } = props;
+  const { stopSession, setTimeData, timeData, ticking } = props;
 
   return (
     <>
