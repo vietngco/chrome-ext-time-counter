@@ -143,6 +143,14 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
 
         if (intervalID !== -1) {
           console.log("CLEAR THE INTERVAL ID");
+          notificationID = Math.floor(Math.random() * 1000000).toString();
+          chrome.notifications.create(notificationID, {
+            type: "basic",
+            iconUrl: "./logo512.png",
+            title: `${isBreak ? "break" : "focus"} session ends`,
+            message: "You are awesome!",
+            priority: 2,
+          });
           chrome.storage.local.get(
             ["timeNOfCycles", "isBreak", "focus", "breakTime"],
             function ({ timeNOfCycles, isBreak, focus, breakTime }) {

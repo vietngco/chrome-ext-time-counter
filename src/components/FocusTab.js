@@ -67,7 +67,7 @@ function Stopwatch(props) {
         <button onClick={stopHandler} disabled={!ticking}>
           Stop
         </button>
-        <button onClick={timerNext} disabled={!ticking}>
+        <button onClick={timerNext} disabled={ticking}>
           Next
         </button>
       </div>

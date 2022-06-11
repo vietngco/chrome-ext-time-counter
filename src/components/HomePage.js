@@ -86,41 +86,13 @@ export default function HomePage() {
         timeBreakTime: parseInt(data.timeBreakTime),
         timeFocus: parseInt(data.timeFocus),
       });
-      // const data1 = await chrome.runtime.sendMessage({
-      //   type: "update-timing-from-storage",
-      //   payload: null,
-      // });
     }
-    // async function getFromStorageForCounting() {
-    //   const data = await chrome.storage.local.get([
-    //     "timeNOfCycles",
-    //     "timeFocus",
-    //     "timeBreakTime",
-    //   ]);
-    //   setCountingTimeData({
-    //     timeNOfCycles: parseInt(data.timeNOfCycles),
-    //     timeBreakTime: parseInt(data.timeBreakTime),
-    //     timeFocus: parseInt(data.timeFocus),
-    //   });
-    // }
+
     getFromStorage();
     const id = setInterval(() => {
-      // getFromStorageForCounting();
       getFromStorage();
-    }, 3000);
+    }, 1000);
     return () => clearInterval(id);
-    // setTimeout(sync () => {
-    //   const data1 = await chrome.runtime.sendMessage({
-    //     type: "update-timing-from-storage",
-    //     payload: null,
-    //   });
-    //   console.log("is it a real data lol", data1);
-    // setCountingTimeData({
-    //   timeNOfCycles: parseInt(data1.timeNOfCycles),
-    //   timeBreakTime: parseInt(data1.timeBreakTime),
-    //   timeFocus: parseInt(data1.timeFocus),
-    // });
-    // }, 1000);
   }, []);
 
   React.useEffect(() => {
