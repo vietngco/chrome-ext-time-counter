@@ -132,51 +132,41 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
   }
 });
 
-////////
-// chrome.action.onClicked.addListener((tab) => {
-//   chrome.scripting.executeScript({
-//     target: { tabId: tab.id },
-//     files: ["content-script.js"],
-//   });
+function domain_from_url(url) {
+  var result;
+  var match;
+  if (
+    (match = url.match(
+      /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/
+    ))
+  ) {
+    result = match[1];
+  }
+  return result;
+}
+chrome.webRequest.onBeforeRequest.addListener(
+  function ({ url }) {
+    const domain = domain_from_url(url);
+    chrome.storage.local.get("block_domains", function ({ block_domains }) {
+      if (block_domains.includes(domain)) {
+        const block_link = chrome.runtime.getURL("block.html");
+        chrome.tabs.update({ url: block_link });
+      }
+    });
+  },
+  {
+    urls: ["<all_urls>"],
+  }
+);
+// chrome.storage.local.get("block_domains", function ({ block_domains }) {
+//   chrome.webRequest.onBeforeRequest.addListener(
+//     function ({ url }) {
+//       const domain = domain_from_url(url);
+//       if (block_domains.includes(domain)) {
+//         const block_link = chrome.runtime.getURL("block.html");
+//         chrome.tabs.update({ url: block_link });
+//       }
+//     },
+//     { urls: ["<all_urls>"] }
+//   );
 // });
-
-// function injectedFunction() {
-//   async function getCurrentTab() {
-//     let queryOptions = { active: true, lastFocusedWindow: true };
-//     // `tab` will either be a `tabs.Tab` instance or `undefined`.
-//     let [tab] = await chrome.tabs.query(queryOptions);
-//     return tab;
-//   }
-//   document.body.style.backgroundColor = "orange";
-// }
-
-// chrome.action.onClicked.addListener((tab) => {
-//   chrome.scripting.executeScript({
-//     target: { tabId: tab.id },
-//     function: injectedFunction,
-//   });
-// });
-
-// chrome.webRequest.onBeforeRequest.addListener(
-//   function (details) {
-//     return { cancel: details.url.indexOf("://www.evil.com/") != -1 };
-//   },
-//   { urls: ["<all_urls>"] },
-//   ["blocking"]
-// );
-
-// function domain_from_url(url) {
-//   var result;
-//   var match;
-//   if (
-//     (match = url.match(
-//       /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im
-//     ))
-//   ) {
-//     result = match[1];
-//     if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
-//       result = match[1];
-//     }
-//   }
-//   return result;
-// }

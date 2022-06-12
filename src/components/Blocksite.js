@@ -8,7 +8,7 @@ export default function Blocksite() {
   console.log("rerednered blocksite");
   function get_link_file() {
     const link = chrome.runtime.getURL("block.html");
-    window.location.href(link);
+    chrome.tabs.update({ url: link });
   }
   async function get_domain() {
     const tabs = await chrome.tabs.query({ currentWindow: true, active: true });
