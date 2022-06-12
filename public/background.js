@@ -2,17 +2,12 @@
 
 console.log("this is background js");
 
-// building
-// nofcycle
-// focus
-// break time
 let initTimeConfig = {
   nOfCycles: 0,
   focusTime: 0,
   breakTime: 0,
 };
 
-// init the thing
 chrome.storage.local.get(
   ["nOfCycles", "focus", "breakTime"],
   function (result) {
@@ -147,26 +142,20 @@ function domain_from_url(url) {
 chrome.webRequest.onBeforeRequest.addListener(
   function ({ url }) {
     const domain = domain_from_url(url);
-    chrome.storage.local.get("block_domains", function ({ block_domains }) {
-      if (block_domains.includes(domain)) {
-        const block_link = chrome.runtime.getURL("block.html");
-        chrome.tabs.update({ url: block_link });
+    chrome.storage.local.get(
+      ["block_domains", "wantToBlock", "isBreak", "ticking"],
+      function ({ block_domains, wantToBlock, isBreak, ticking }) {
+        if (
+          block_domains.includes(domain) &&
+          (wantToBlock || (!isBreak && ticking))
+        ) {
+          const block_link = chrome.runtime.getURL("block.html");
+          chrome.tabs.update({ url: block_link });
+        }
       }
-    });
+    );
   },
   {
     urls: ["<all_urls>"],
   }
 );
-// chrome.storage.local.get("block_domains", function ({ block_domains }) {
-//   chrome.webRequest.onBeforeRequest.addListener(
-//     function ({ url }) {
-//       const domain = domain_from_url(url);
-//       if (block_domains.includes(domain)) {
-//         const block_link = chrome.runtime.getURL("block.html");
-//         chrome.tabs.update({ url: block_link });
-//       }
-//     },
-//     { urls: ["<all_urls>"] }
-//   );
-// });

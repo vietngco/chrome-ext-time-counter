@@ -47,7 +47,7 @@ function a11yProps(index) {
 export default function HomePage() {
   const [counting, setCounting] = React.useState(false);
   const theme = useTheme();
-  const [value, setValue] = React.useState(1);
+  const [value, setValue] = React.useState(0);
   const [ticking, setTicking] = React.useState(false);
   const [isBreak, setIsBreak] = React.useState(false);
   const [timeData, setTimeData] = React.useState({
@@ -158,9 +158,9 @@ export default function HomePage() {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          <Tab label="Focus Mode" {...a11yProps(0)} disabled={ticking} />
-          <Tab label="Block Sites" {...a11yProps(1)} disabled={ticking} />
-          <Tab label="Insights" {...a11yProps(2)} disabled={ticking} />
+          <Tab label="Focus Mode" {...a11yProps(0)} />
+          <Tab label="Block Sites" {...a11yProps(1)} />
+          <Tab label="Insights" {...a11yProps(2)} />
         </Tabs>
       </AppBar>
       <SwipeableViews

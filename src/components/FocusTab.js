@@ -9,19 +9,10 @@ import ImageIcon from "@mui/icons-material/Image";
 import WorkIcon from "@mui/icons-material/Work";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import { Divider, TextField, Button } from "@mui/material";
-import { useRef, useState, useEffect } from "react";
+import { useState } from "react";
 
 function Stopwatch(props) {
-  const {
-    // timeData,
-    // setTimeData,
-    setTicking,
-    ticking,
-    countingTimeData,
-    // setCountingTimeData,
-    isBreak,
-    setIsBreak,
-  } = props;
+  const { setTicking, ticking, countingTimeData, isBreak, setIsBreak } = props;
   const [text, setText] = useState("");
 
   const startHandler = async () => {
@@ -53,9 +44,13 @@ function Stopwatch(props) {
         <div>n of cycle: {countingTimeData.timeNOfCycles} left</div>
       </div>
       {isBreak ? (
-        <div>running BREAK time: {countingTimeData.timeBreakTime}</div>
+        <div>
+          running BREAK time: {second_to_minute(countingTimeData.timeBreakTime)}
+        </div>
       ) : (
-        <div>running FOCUS time: {countingTimeData.timeFocus}</div>
+        <div>
+          running FOCUS time: {second_to_minute(countingTimeData.timeFocus)}
+        </div>
       )}
 
       <div>
@@ -146,9 +141,9 @@ function TimeClock(props) {
     <>
       <h4>Meta Data</h4>
       <div>cycle: {timeData.nOfCycles}</div>
-      <div>current time: {timeData.focus} left</div>
-      <div>break time: {timeData.breakTime} left</div>
-      <Button onClick={stopSession} disabled={ticking}>
+      <div>current time: {second_to_minute(timeData.focus)} </div>
+      <div>break time: {second_to_minute(timeData.breakTime)} </div>
+      <Button onClick={stopSession} disabled={ticking} variant="outlined">
         stop your sesssion
       </Button>
     </>
@@ -156,10 +151,6 @@ function TimeClock(props) {
 }
 function ConfigurationMode(props) {
   const { startSession, setTimeData, timeData } = props;
-  console.log({ timeData });
-  const cycleRef = React.useRef();
-  const focusRef = React.useRef();
-  const breakRef = React.useRef();
 
   return (
     <div
@@ -190,7 +181,6 @@ function ConfigurationMode(props) {
                 }}
               >
                 <TextField
-                  inputRef={cycleRef}
                   id="outlined-number-cyle"
                   label="Cycles"
                   type="number"
@@ -237,16 +227,15 @@ function ConfigurationMode(props) {
                 }}
               >
                 <TextField
-                  inputRef={focusRef}
                   id="outlined-number-focus"
                   label="Focus"
                   type="number"
                   size="small"
-                  value={timeData ? timeData.focus : 1}
+                  value={timeData ? second_to_minute(timeData.focus) : 0}
                   onChange={(e) =>
                     setTimeData((c) => ({
                       ...c,
-                      focus: parseInt(e.target.value),
+                      focus: minute_to_second(e.target.value),
                     }))
                   }
                   defaultValue={timeData ? timeData.focus : 0}
@@ -284,19 +273,18 @@ function ConfigurationMode(props) {
                 }}
               >
                 <TextField
-                  inputRef={breakRef}
-                  id="outlined-number-break"
-                  label="Break"
+                  id="outlined-number-break-time"
+                  label="Break Time"
                   type="number"
                   size="small"
-                  value={timeData ? timeData.breakTime : 1}
-                  defaultValue={timeData ? timeData.breakTime : 0}
+                  value={timeData ? second_to_minute(timeData.breakTime) : 0}
                   onChange={(e) =>
                     setTimeData((c) => ({
                       ...c,
-                      breakTime: parseInt(e.target.value),
+                      breakTime: minute_to_second(e.target.value),
                     }))
                   }
+                  defaultValue={timeData ? timeData.breakTime : 0}
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{
                     shrink: true,
@@ -328,4 +316,22 @@ function ConfigurationMode(props) {
       </Button>
     </div>
   );
+}
+
+function second_to_minute(time) {
+  const minute = Math.floor(time / 60);
+  const second = time - minute * 60;
+  const final_time =
+    str_pad_left(minute, "0", 2) + ":" + str_pad_left(second, "0", 2);
+  return final_time;
+}
+
+function minute_to_second(time) {
+  const second = parseInt(time) * 60;
+  const final_time = str_pad_left(second, "0", 2);
+  return final_time;
+}
+
+function str_pad_left(string, pad, length) {
+  return (new Array(length + 1).join(pad) + string).slice(-length);
 }
