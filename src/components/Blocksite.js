@@ -6,6 +6,10 @@ export default function Blocksite() {
   const [currentUrl, setCurrentUrl] = useState("");
   const [block_domains, setBlock_domains] = useState([]);
   console.log("rerednered blocksite");
+  function get_link_file() {
+    const link = chrome.runtime.getURL("block.html");
+    window.location.href(link);
+  }
   async function get_domain() {
     const tabs = await chrome.tabs.query({ currentWindow: true, active: true });
     console.log(tabs);
@@ -43,6 +47,7 @@ export default function Blocksite() {
       <div>URL: {currentUrl}</div>
       <Divider />
       <div>list of block domains</div>
+      <button onClick={get_link_file}>get link file</button>
       {block_domains.map((domain) => {
         return (
           <>

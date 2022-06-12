@@ -1,12 +1,19 @@
 {
-  "name": "Getting Started Example",
-  "description": "Build an Extension!",
+  "name": "Focus timer",
+  "description": "Build a productivity app!",
   "version": "1.0",
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "notifications", "activeTab", "scripting", "tabs"],
+  "permissions": [
+    "storage",
+    "notifications",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "webRequest"
+  ],
   "host_permissions": ["*://*/*"],
   "action": {
     "default_popup": "index.html"
@@ -17,9 +24,5 @@
       "js": ["content-script.js"]
     }
   ],
-  "options_page": "options.html",
-  "options_ui": {
-    "page": "options.html",
-    "open_in_tab": false
-  }
+  "options_page": "options.html"
 }
