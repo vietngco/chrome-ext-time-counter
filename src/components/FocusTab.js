@@ -8,19 +8,17 @@ import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import WorkIcon from "@mui/icons-material/Work";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
-// import CommentIcon from "@mui/icons-material/Comment";
 import { Divider, TextField, Button } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
-// import useStoragelocalHook from "../hooks/useStoragelocalHook";
 
 function Stopwatch(props) {
   const {
-    timeData,
-    setTimeData,
+    // timeData,
+    // setTimeData,
     setTicking,
     ticking,
     countingTimeData,
-    setCountingTimeData,
+    // setCountingTimeData,
     isBreak,
     setIsBreak,
   } = props;

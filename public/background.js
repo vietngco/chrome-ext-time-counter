@@ -13,22 +13,22 @@ let initTimeConfig = {
 };
 
 // init the thing
-// chrome.storage.local.get(
-//   ["nOfCycles", "focus", "breakTime", "key"],
-//   function (result) {
-//     // console.log("this is 1");
-//     // console.log(result);
-//     if (result.nOfCycles === undefined) {
-//       chrome.storage.local.set({ nOfCycles: initTimeConfig.nOfCycles });
-//     }
-//     if (result.focus === undefined) {
-//       chrome.storage.local.set({ focus: initTimeConfig.focus });
-//     }
-//     if (result.breakTime === undefined) {
-//       chrome.storage.local.set({ breakTime: initTimeConfig.breakTime });
-//     }
-//   }
-// );
+chrome.storage.local.get(
+  ["nOfCycles", "focus", "breakTime"],
+  function (result) {
+    // console.log("this is 1");
+    // console.log(result);
+    if (result.nOfCycles === undefined) {
+      chrome.storage.local.set({ nOfCycles: initTimeConfig.nOfCycles });
+    }
+    if (result.focus === undefined) {
+      chrome.storage.local.set({ focus: initTimeConfig.focus });
+    }
+    if (result.breakTime === undefined) {
+      chrome.storage.local.set({ breakTime: initTimeConfig.breakTime });
+    }
+  }
+);
 
 setInterval(() => {
   chrome.storage.local.get((obj) => {
@@ -58,51 +58,7 @@ chrome.storage.local.get(
   }
 );
 
-// must calculate from the backend
-
-// chrome.runtime.onMessage.addListener(sync function (
-//   request,
-//   sender,
-//   sendResponse
-// ) {
-//   const { type, payload } = request;
-//   console.log({ type });
-//   if (type === "update-timing-from-storage") {
-//     // const data = await chrome.storage.local.get([
-//     //   "timeNOfCycles",
-//     //   "timeBreakTime",
-//     //   "timeFocus",
-//     // ]);
-//     // console.log("this is result I looke for", data);
-//     // sendResponse(data);
-//     setTimeout(function () {
-//       sendResponse({ status: true });
-//     }, 0);
-//     return true; // uncomment this line to fix error
-//   }
-//   if (type === "start-ticking") {
-//     const { isBreak } = payload;
-//     const intervalID = setInterval(sync () => {
-//       if (isBreak) {
-//         const data = await chrome.storage.local.get("timeBreakTime");
-//         chrome.storage.local.set({ timeBreakTime: data.timeBreakTime - 1 });
-//       } else {
-//         const data = await chrome.storage.local.get("timeFocus");
-//         chrome.storage.local.set({ timeFocus: data.timeFocus - 1 });
-//       }
-//     }, 1000);
-//     chrome.local.storage.set({ intervalID });
-//   }
-//   if (type === "stop-ticking") {
-//     const data = await chrome.storage.local.get("intervalID");
-//     clearInterval(data.intervalID);
-//   }
-//   if (type === "end-session") {
-//   }
-// });
-
 chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
-  // setTimeout to simulate any callback (even from storage.local)
   const { type, payload } = rq;
   if (type === "update-timing-from-storage") {
     chrome.storage.local.get(
@@ -113,9 +69,6 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
     );
   }
   if (type === "start-ticking") {
-    // chrome.storage.local.get("intervalID"), function({intervalID}){
-
-    // }
     const { time, isBreak } = payload;
     console.log("START TICKING ....", time, isBreak);
     let cur_intervalID = -1;
@@ -143,6 +96,7 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
 
         if (intervalID !== -1) {
           console.log("CLEAR THE INTERVAL ID");
+
           notificationID = Math.floor(Math.random() * 1000000).toString();
           chrome.notifications.create(notificationID, {
             type: "basic",
@@ -150,7 +104,9 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
             title: `${isBreak ? "break" : "focus"} session ends`,
             message: "You are awesome!",
             priority: 2,
+            silent: false,
           });
+          chrome.notifications.clear(notificationID);
           chrome.storage.local.get(
             ["timeNOfCycles", "isBreak", "focus", "breakTime"],
             function ({ timeNOfCycles, isBreak, focus, breakTime }) {
@@ -174,20 +130,53 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
       chrome.storage.local.set({ intervalID: -1 });
     });
   }
-  if (type === "acutal-stop-ticking") return true; // uncomment this line to fix error
 });
-// chrome.runtime.onConnect.addListener(function (port) {
-//   console.assert(port.name === "knockknock");
-//   port.onMessage.addListener(function (msg) {
-//     if (msg.joke === "Knock knock")
-//       port.postMessage({ question: "Who's there?" });
-//     else if (msg.answer === "Madame")
-//       port.postMessage({ question: "Madame who?" });
-//     else if (msg.answer === "Madame... Bovary")
-//       port.postMessage({ question: "I don't get it." });
+
+////////
+// chrome.action.onClicked.addListener((tab) => {
+//   chrome.scripting.executeScript({
+//     target: { tabId: tab.id },
+//     files: ["content-script.js"],
 //   });
 // });
 
-// chrome.runtime.Port.onDisconnect.addListener(function (port) {
-//   console.log("could not find the port is opening", port.name);
+// function injectedFunction() {
+//   async function getCurrentTab() {
+//     let queryOptions = { active: true, lastFocusedWindow: true };
+//     // `tab` will either be a `tabs.Tab` instance or `undefined`.
+//     let [tab] = await chrome.tabs.query(queryOptions);
+//     return tab;
+//   }
+//   document.body.style.backgroundColor = "orange";
+// }
+
+// chrome.action.onClicked.addListener((tab) => {
+//   chrome.scripting.executeScript({
+//     target: { tabId: tab.id },
+//     function: injectedFunction,
+//   });
 // });
+
+// chrome.webRequest.onBeforeRequest.addListener(
+//   function (details) {
+//     return { cancel: details.url.indexOf("://www.evil.com/") != -1 };
+//   },
+//   { urls: ["<all_urls>"] },
+//   ["blocking"]
+// );
+
+// function domain_from_url(url) {
+//   var result;
+//   var match;
+//   if (
+//     (match = url.match(
+//       /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im
+//     ))
+//   ) {
+//     result = match[1];
+//     if ((match = result.match(/^[^\.]+\.(.+\..+)$/))) {
+//       result = match[1];
+//     }
+//   }
+//   return result;
+// }

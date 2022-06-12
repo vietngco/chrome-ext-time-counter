@@ -9,6 +9,7 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import FocusTab from "./FocusTab";
+import Blocksite from "./Blocksite";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -46,7 +47,7 @@ function a11yProps(index) {
 export default function HomePage() {
   const [counting, setCounting] = React.useState(false);
   const theme = useTheme();
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(1);
   const [ticking, setTicking] = React.useState(false);
   const [isBreak, setIsBreak] = React.useState(false);
   const [timeData, setTimeData] = React.useState({
@@ -94,19 +95,24 @@ export default function HomePage() {
     }, 1000);
     return () => clearInterval(id);
   }, []);
-
+  React.useEffect(() => {
+    if (countingTimeData.nOfCycles <= 0) {
+      // end of session
+      chrome.notifications.create("end the session", {
+        type: "basic",
+        iconUrl: "./logo512.png",
+        title: "Congras! The current session ends!",
+        message: "You work awesomely!",
+        priority: 1,
+        silent: false,
+      });
+      setCounting(false);
+    }
+  }, [countingTimeData]);
   React.useEffect(() => {
     chrome.storage.local.set({
       timeNOfCycles: countingTimeData.timeNOfCycles,
-    });
-  }, [countingTimeData]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
       timeBreakTime: countingTimeData.timeBreakTime,
-    });
-  }, [countingTimeData]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
       timeFocus: countingTimeData.timeFocus,
     });
   }, [countingTimeData]);
@@ -129,15 +135,7 @@ export default function HomePage() {
   React.useEffect(() => {
     chrome.storage.local.set({
       nOfCycles: timeData.nOfCycles,
-    });
-  }, [timeData]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
       focus: timeData.focus,
-    });
-  }, [timeData]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
       breakTime: timeData.breakTime,
     });
   }, [timeData]);
@@ -185,7 +183,7 @@ export default function HomePage() {
           />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>
-          Item Two
+          <Blocksite />
         </TabPanel>
         <TabPanel value={value} index={2} dir={theme.direction}>
           Item Three

@@ -6,7 +6,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "notifications", "scripting"],
+  "permissions": ["storage", "notifications", "activeTab", "scripting", "tabs"],
   "host_permissions": ["*://*/*"],
   "action": {
     "default_popup": "index.html"
@@ -16,5 +16,10 @@
       "matches": ["*://*/*"],
       "js": ["content-script.js"]
     }
-  ]
+  ],
+  "options_page": "options.html",
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
 }
