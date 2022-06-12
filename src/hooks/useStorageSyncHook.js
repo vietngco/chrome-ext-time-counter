@@ -1,13 +1,27 @@
 /*global chrome*/
 import { useEffect, useState } from "react";
 
-// NOTE: value, initvalue must be json object
 export default function useStoragelocalHook(key, initValue) {
-  // key: string, initValue: any
-  const [value, setValue] = useState();
+  const [value, setValue] = useState(() => {
+    if (typeof initValue === "function") {
+      return initValue();
+    }
+    return initValue;
+  });
 
-  // useEffect(() => {
-  //   chrome.storage.local.set(value);
-  // }, [value]); // if the value or new key changed =>>> create/update data in chrome local storage
+  useEffect(() => {
+    async function getValue() {
+      const stored_value = await chrome.storage.local.get(key);
+      if (stored_value[key]) {
+        setValue(stored_value.key);
+      }
+    }
+    getValue();
+  }, []);
+
+  useEffect(() => {
+    chrome.storage.local.set({ [key]: value });
+  }, [value, key]);
+
   return [value, setValue];
 }
