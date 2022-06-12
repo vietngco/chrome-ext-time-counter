@@ -12,8 +12,9 @@ export default function useStoragelocalHook(key, initValue) {
   useEffect(() => {
     async function getValue() {
       const stored_value = await chrome.storage.local.get(key);
-      if (stored_value[key]) {
-        setValue(stored_value.key);
+      console.log("THIS IS LOL:", stored_value, stored_value[key]);
+      if (stored_value[key] !== undefined) {
+        setValue(stored_value[key]);
       }
     }
     getValue();
