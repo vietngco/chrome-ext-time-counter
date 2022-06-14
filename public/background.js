@@ -62,6 +62,7 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
         sendResponse(result);
       }
     );
+    return true;
   }
   if (type === "start-ticking") {
     const { time, isBreak } = payload;
@@ -83,6 +84,7 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
           chrome.storage.local.set({ timeFocus: parseInt(timeFocus) - 1 });
         });
       }, 1000);
+      keepAlive(true);
     }
     chrome.storage.local.set({ intervalID: cur_intervalID });
     setTimeout(() => {
@@ -117,6 +119,8 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
         }
       });
     }, time * 1000);
+    sendResponse();
+    return true;
   }
   if (type === "press-halt-ticking") {
     chrome.storage.local.get(["intervalID"], function ({ intervalID }) {
@@ -124,6 +128,8 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
       clearInterval(intervalID);
       chrome.storage.local.set({ intervalID: -1 });
     });
+    sendResponse();
+    return true;
   }
 });
 
@@ -139,6 +145,7 @@ function domain_from_url(url) {
   }
   return result;
 }
+
 chrome.webRequest.onBeforeRequest.addListener(
   function ({ url }) {
     const domain = domain_from_url(url);
@@ -159,3 +166,71 @@ chrome.webRequest.onBeforeRequest.addListener(
     urls: ["<all_urls>"],
   }
 );
+
+let lifeline;
+
+keepAlive(false); // dont have to run the port when ticking is not set
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === "keepAlive") {
+    console.log("the port listner is called ");
+    lifeline = port;
+    setTimeout(keepAliveForced, 30000); // 5 minutes minus 5 seconds
+    port.onDisconnect.addListener(keepAliveForced);
+  }
+});
+
+function keepAliveForced() {
+  lifeline?.disconnect();
+  lifeline = null;
+  keepAlive(false);
+}
+
+async function keepAlive(forceRun) {
+  const { ticking } = await chrome.storage.local.get("ticking");
+  // no ticking and no force run -> not run
+  if (!ticking && !forceRun) return; // when it is not ticking for a while -> keep alive will not run hte port will be closed
+  if (lifeline) return;
+  console.log("keep alive is called");
+  for (const tab of await chrome.tabs.query({ url: "*://*/*" })) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: () => chrome.runtime.connect({ name: "keepAlive" }),
+      });
+      chrome.tabs.onUpdated.removeListener(retryOnTabUpdate);
+      return;
+    } catch (e) {}
+  }
+  chrome.tabs.onUpdated.addListener(retryOnTabUpdate);
+}
+
+async function retryOnTabUpdate(tabId, info, tab) {
+  if (info.url && /^(file|https?):/.test(info.url)) {
+    keepAlive(false);
+  }
+}
+function injectedFunction() {
+  document.body.style.backgroundColor = "orange";
+  const newAudioDiv = document.createElement("audio");
+  newAudioDiv.id = "timer-audio-player-1";
+  newAudioDiv.controls = "controls";
+  newAudioDiv.src = "sound.mp3";
+  newAudioDiv.type = "audio/mpeg";
+  document.body.appendChild(newAudioDiv);
+  console.log("CALLING THE INJECTED FUNCTION");
+}
+async function injectContentHtml() {
+  // try all tabs until one tab works
+  for (const tab of await chrome.tabs.query({ url: "*://*/*" })) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: injectedFunction,
+      });
+      return;
+    } catch (e) {}
+  }
+}
+
+injectContentHtml();

@@ -14,10 +14,9 @@
     "tabs",
     "webRequest"
   ],
-  "host_permissions": ["*://*/*"],
+  "host_permissions": ["<all_urls>"],
+
   "action": {
     "default_popup": "index.html"
-  },
-
-  "options_page": "options.html"
+  }
 }

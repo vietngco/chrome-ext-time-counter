@@ -10,9 +10,20 @@ import WorkIcon from "@mui/icons-material/Work";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import { Divider, TextField, Button } from "@mui/material";
 import { useState } from "react";
+import {
+  CountdownCircleTimer,
+  useCountdown,
+} from "react-countdown-circle-timer";
 
 function Stopwatch(props) {
-  const { setTicking, ticking, countingTimeData, isBreak, setIsBreak } = props;
+  const {
+    setTicking,
+    ticking,
+    countingTimeData,
+    isBreak,
+    setIsBreak,
+    timeData,
+  } = props;
   const [text, setText] = useState("");
 
   const startHandler = async () => {
@@ -46,10 +57,41 @@ function Stopwatch(props) {
       {isBreak ? (
         <div>
           running BREAK time: {second_to_minute(countingTimeData.timeBreakTime)}
+          <CountdownCircleTimer
+            isPlaying={false}
+            duration={timeData.breakTime}
+            colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
+            colorsTime={[
+              timeData.breakTime,
+              Math.floor(timeData.breakTime * 0.5),
+              Math.floor(timeData.breakTime * 0.2),
+              0,
+            ]}
+          >
+            {({ remainingTime }) =>
+              second_to_minute(countingTimeData.timeBreakTime)
+            }
+          </CountdownCircleTimer>
         </div>
       ) : (
         <div>
           running FOCUS time: {second_to_minute(countingTimeData.timeFocus)}
+          <CountdownCircleTimer
+            isPlaying={false}
+            duration={timeData.focus}
+            colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
+            initialRemainingTime={countingTimeData.timeFocus}
+            colorsTime={[
+              timeData.focus,
+              Math.floor(timeData.focus * 0.5),
+              Math.floor(timeData.focus * 0.2),
+              0,
+            ]}
+          >
+            {({ remainingTime }) =>
+              second_to_minute(countingTimeData.timeFocus)
+            }
+          </CountdownCircleTimer>
         </div>
       )}
 
@@ -96,20 +138,20 @@ export default function FocusTab(props) {
   const stopSession = () => {
     setCounting(false);
     setTicking(false);
+    chrome.storage.local.get("intervalID", function ({ intervalID }) {
+      clearInterval(intervalID);
+    });
+    setCountingTimeData({
+      timeNOfCycles: 0,
+      timeBreakTime: 0,
+      timeFocus: 0,
+    });
   };
 
   return (
     <>
       {counting ? (
         <>
-          {console.log("counting appear")}
-          <TimeClock
-            stopSession={stopSession}
-            timeData={timeData}
-            setTimeData={setTimeData}
-            ticking={ticking}
-          />
-          <Divider />
           <Stopwatch
             timeData={timeData}
             setTimeData={setTimeData}
@@ -128,7 +170,7 @@ export default function FocusTab(props) {
             startSession={startSession}
             setTimeData={setTimeData}
             timeData={timeData}
-          />{" "}
+          />
         </>
       )}
     </>
@@ -141,8 +183,8 @@ function TimeClock(props) {
     <>
       <h4>Meta Data</h4>
       <div>cycle: {timeData.nOfCycles}</div>
-      <div>current time: {second_to_minute(timeData.focus)} </div>
-      <div>break time: {second_to_minute(timeData.breakTime)} </div>
+      <div>current time: {second_to_number_print(timeData.focus)} </div>
+      <div>break time: {second_to_number_print(timeData.breakTime)} </div>
       <Button onClick={stopSession} disabled={ticking} variant="outlined">
         stop your sesssion
       </Button>
@@ -231,11 +273,11 @@ function ConfigurationMode(props) {
                   label="Focus"
                   type="number"
                   size="small"
-                  value={timeData ? second_to_minute(timeData.focus) : 0}
+                  value={timeData ? second_to_number_print(timeData.focus) : 0}
                   onChange={(e) =>
                     setTimeData((c) => ({
                       ...c,
-                      focus: minute_to_second(e.target.value),
+                      focus: minute_to_number_print(e.target.value),
                     }))
                   }
                   defaultValue={timeData ? timeData.focus : 0}
@@ -277,11 +319,13 @@ function ConfigurationMode(props) {
                   label="Break Time"
                   type="number"
                   size="small"
-                  value={timeData ? second_to_minute(timeData.breakTime) : 0}
+                  value={
+                    timeData ? second_to_number_print(timeData.breakTime) : 0
+                  }
                   onChange={(e) =>
                     setTimeData((c) => ({
                       ...c,
-                      breakTime: minute_to_second(e.target.value),
+                      breakTime: minute_to_number_print(e.target.value),
                     }))
                   }
                   defaultValue={timeData ? timeData.breakTime : 0}
@@ -334,4 +378,14 @@ function minute_to_second(time) {
 
 function str_pad_left(string, pad, length) {
   return (new Array(length + 1).join(pad) + string).slice(-length);
+}
+
+function second_to_number_print(time) {
+  const number = Math.floor(parseInt(time) / 60);
+  return number;
+}
+
+function minute_to_number_print(time) {
+  const number = parseInt(time) * 60;
+  return number;
 }

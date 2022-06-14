@@ -78,7 +78,7 @@ export default function Blocksite() {
 
       <Divider />
 
-      <div>list of block domains</div>
+      <h4>list of block domains:</h4>
       {block_domains.map((domain) => {
         return (
           <>
