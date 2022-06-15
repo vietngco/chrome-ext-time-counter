@@ -14,6 +14,7 @@
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "babel-loader": "^8.2.5",
+    "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.0",
     "react": "^18.1.0",
     "react-countdown-circle-timer": "^3.0.9",
@@ -29,7 +30,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "mybuild": "webpack --config webpack.config.js"
+    "mybuild": "webpack --config webpack.prod.js",
+    "mydev": "webpack --watch --config webpack.dev.js"
   },
   "eslintConfig": {
     "extends": [

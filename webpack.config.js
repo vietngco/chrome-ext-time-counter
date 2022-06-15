@@ -1,5 +1,5 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const webpack = require("webpack"); //to access built-in plugins
+const CopyPlugin = require("copy-webpack-plugin");
 
 const path = require("path");
 
@@ -17,12 +17,19 @@ module.exports = {
         use: {
           loader: "babel-loader",
           options: {
-            presets: ["@babel/preset-env", "@babel/preset-react"],
+            presets: [
+              "@babel/preset-env",
+              ["@babel/preset-react", { runtime: "automatic" }],
+            ],
           },
         },
       },
     ],
   },
-  plugins: [new HtmlWebpackPlugin({ template: "./public/index.html" })],
-  mode: "development",
+  plugins: [
+    new HtmlWebpackPlugin({ template: "./src/index.html" }),
+    new CopyPlugin({
+      patterns: [{ from: "public2", to: "." }],
+    }),
+  ],
 };
