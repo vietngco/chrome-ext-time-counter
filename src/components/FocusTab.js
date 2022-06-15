@@ -10,10 +10,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
 import { Divider, TextField, Button } from "@mui/material";
 import { useState } from "react";
-import {
-  CountdownCircleTimer,
-  useCountdown,
-} from "react-countdown-circle-timer";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
 
 function Stopwatch(props) {
   const {
@@ -23,9 +20,18 @@ function Stopwatch(props) {
     isBreak,
     setIsBreak,
     timeData,
+    setCounting,
+    setCountingTimeData,
   } = props;
-  const [text, setText] = useState("");
-
+  function stopSession() {
+    setTicking(false);
+    setCountingTimeData({
+      timeNOfCycles: 0,
+      timeBreakTime: 0,
+      timeFocus: 0,
+    });
+    setCounting(false);
+  }
   const startHandler = async () => {
     const data = await chrome.runtime.sendMessage({
       type: "start-ticking",
@@ -36,7 +42,6 @@ function Stopwatch(props) {
         isBreak: isBreak,
       },
     });
-
     setTicking(true);
   };
   const stopHandler = async () => {
@@ -50,7 +55,14 @@ function Stopwatch(props) {
     setIsBreak((c) => !c);
   }
   return (
-    <div>
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+    >
       <div>
         <div>n of cycle: {countingTimeData.timeNOfCycles} left</div>
       </div>
@@ -97,7 +109,10 @@ function Stopwatch(props) {
 
       <div>
         <button onClick={startHandler} disabled={ticking}>
-          Start
+          {countingTimeData.timeFocus < timeData.focus ||
+          countingTimeData.timeBreakTime < timeData.breakTime
+            ? "continue"
+            : "start"}
         </button>
         <button onClick={stopHandler} disabled={!ticking}>
           Stop
@@ -106,7 +121,10 @@ function Stopwatch(props) {
           Next
         </button>
       </div>
-      <div color="red">{text}</div>
+      <br />
+      <Button variant="outlined" onClick={stopSession}>
+        Stop current session
+      </Button>
     </div>
   );
 }
@@ -151,18 +169,17 @@ export default function FocusTab(props) {
   return (
     <>
       {counting ? (
-        <>
-          <Stopwatch
-            timeData={timeData}
-            setTimeData={setTimeData}
-            setTicking={setTicking}
-            ticking={ticking}
-            countingTimeData={countingTimeData}
-            setCountingTimeData={setCountingTimeData}
-            isBreak={isBreak}
-            setIsBreak={setIsBreak}
-          />
-        </>
+        <Stopwatch
+          timeData={timeData}
+          setTimeData={setTimeData}
+          setTicking={setTicking}
+          ticking={ticking}
+          countingTimeData={countingTimeData}
+          setCountingTimeData={setCountingTimeData}
+          isBreak={isBreak}
+          setCounting={setCounting}
+          setIsBreak={setIsBreak}
+        />
       ) : (
         <>
           {console.log("counting has not appear yet ")}
@@ -176,21 +193,7 @@ export default function FocusTab(props) {
     </>
   );
 }
-function TimeClock(props) {
-  const { stopSession, setTimeData, timeData, ticking } = props;
 
-  return (
-    <>
-      <h4>Meta Data</h4>
-      <div>cycle: {timeData.nOfCycles}</div>
-      <div>current time: {second_to_number_print(timeData.focus)} </div>
-      <div>break time: {second_to_number_print(timeData.breakTime)} </div>
-      <Button onClick={stopSession} disabled={ticking} variant="outlined">
-        stop your sesssion
-      </Button>
-    </>
-  );
-}
 function ConfigurationMode(props) {
   const { startSession, setTimeData, timeData } = props;
 
