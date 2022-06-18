@@ -1,7 +1,8 @@
 /*global chrome*/
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function useStoragelocalHook(key, initValue) {
+  const didMount = useRef(false);
   const [value, setValue] = useState(() => {
     if (typeof initValue === "function") {
       return initValue();
@@ -12,8 +13,9 @@ export default function useStoragelocalHook(key, initValue) {
   useEffect(() => {
     async function getValue() {
       const stored_value = await chrome.storage.local.get(key);
-      console.log("THIS IS LOL:", stored_value, stored_value[key]);
       if (stored_value[key] !== undefined) {
+        console.log("THIS IS LOL:", key, ":", stored_value[key]);
+
         setValue(stored_value[key]);
       }
     }
@@ -21,7 +23,11 @@ export default function useStoragelocalHook(key, initValue) {
   }, []);
 
   useEffect(() => {
-    chrome.storage.local.set({ [key]: value });
+    if (didMount.current) {
+      console.log("react is setting vlaue for ", key, ":", value);
+      chrome.storage.local.set({ [key]: value });
+    }
+    didMount.current = true;
   }, [value, key]);
 
   return [value, setValue];

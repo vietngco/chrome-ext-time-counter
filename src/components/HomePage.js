@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import FocusTab from "./FocusTab";
 import Blocksite from "./Blocksite";
+import useStoragelocalHook from "../hooks/useStorageSyncHook";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -45,21 +46,23 @@ function a11yProps(index) {
 }
 
 export default function HomePage() {
-  const [counting, setCounting] = React.useState(false);
-  const theme = useTheme();
   const [value, setValue] = React.useState(0);
-  const [ticking, setTicking] = React.useState(false);
-  const [isBreak, setIsBreak] = React.useState(false);
-  const [timeData, setTimeData] = React.useState({
-    nOfCycles: 0,
-    focus: 0,
-    breakTime: 0,
-  });
-  const [countingTimeData, setCountingTimeData] = React.useState({
-    timeNOfCycles: 0,
-    timeFocus: 0,
-    timeBreakTime: 0,
-  });
+  const theme = useTheme();
+  const [counting, setCounting] = useStoragelocalHook("counting", false);
+  const [ticking, setTicking] = useStoragelocalHook("ticking", false);
+  const [isBreak, setIsBreak] = useStoragelocalHook("isBreak", false);
+  const [nOfCycles, setNOfCycles] = useStoragelocalHook("nOfCycles", 0);
+  const [focus, setFocus] = useStoragelocalHook("focus", 0);
+  const [breakTime, setBreakTime] = useStoragelocalHook("breakTime", 0);
+  const [timeNOfCycles, setTimeNOfCycles] = useStoragelocalHook(
+    "timeNOfCycles",
+    0
+  );
+  const [timeFocus, setTimeFocus] = useStoragelocalHook("timeFocus", 0);
+  const [timeBreakTime, setTimeBreakTime] = useStoragelocalHook(
+    "timeBreakTime",
+    0
+  );
 
   React.useEffect(() => {
     async function getFromStorage() {
@@ -74,71 +77,28 @@ export default function HomePage() {
         "timeFocus",
         "timeBreakTime",
       ]);
+      // console.log("GETTING FROM THE storage in the home page");
+
+      // console.log(data);
       setCounting(data.counting);
       setTicking(data.ticking);
       setIsBreak(data.isBreak);
-      setTimeData({
-        nOfCycles: data.nOfCycles,
-        focus: data.focus,
-        breakTime: data.breakTime,
-      });
-      setCountingTimeData({
-        timeNOfCycles: parseInt(data.timeNOfCycles),
-        timeBreakTime: parseInt(data.timeBreakTime),
-        timeFocus: parseInt(data.timeFocus),
-      });
+      setNOfCycles(data.nOfCycles);
+      setBreakTime(data.breakTime);
+      setFocus(data.focus);
+      setTimeNOfCycles(data.timeNOfCycles);
+      setTimeBreakTime(data.timeBreakTime);
+      setTimeFocus(data.timeFocus);
     }
 
     getFromStorage();
     const id = setInterval(() => {
+      // this is run after 1 second
       getFromStorage();
     }, 1000);
     return () => clearInterval(id);
   }, []);
-  React.useEffect(() => {
-    if (countingTimeData.nOfCycles <= 0) {
-      // end of session
-      chrome.notifications.create("end the session", {
-        type: "basic",
-        iconUrl: "./logo512.png",
-        title: "Congras! The current session ends!",
-        message: "You work awesomely!",
-        priority: 1,
-        silent: false,
-      });
-      setCounting(false);
-    }
-  }, [countingTimeData]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
-      timeNOfCycles: countingTimeData.timeNOfCycles,
-      timeBreakTime: countingTimeData.timeBreakTime,
-      timeFocus: countingTimeData.timeFocus,
-    });
-  }, [countingTimeData]);
 
-  React.useEffect(() => {
-    chrome.storage.local.set({
-      counting: counting,
-    });
-  }, [counting]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
-      ticking: ticking,
-    });
-  }, [ticking]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
-      isBreak: isBreak,
-    });
-  }, [isBreak]);
-  React.useEffect(() => {
-    chrome.storage.local.set({
-      nOfCycles: timeData.nOfCycles,
-      focus: timeData.focus,
-      breakTime: timeData.breakTime,
-    });
-  }, [timeData]);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -176,10 +136,22 @@ export default function HomePage() {
             ticking={ticking}
             isBreak={isBreak}
             setIsBreak={setIsBreak}
-            timeData={timeData}
-            setTimeData={setTimeData}
-            countingTimeData={countingTimeData}
-            setCountingTimeData={setCountingTimeData}
+            //
+            nOfCycles={nOfCycles}
+            breakTime={breakTime}
+            focus={focus}
+            //
+            timeNOfCycles={timeNOfCycles}
+            timeBreakTime={timeBreakTime}
+            timeFocus={timeFocus}
+            //
+            setNOfCycles={setNOfCycles}
+            setFocus={setFocus}
+            setBreakTime={setBreakTime}
+            //
+            setTimeNOfCycles={setTimeNOfCycles}
+            setTimeFocus={setTimeFocus}
+            setTimeBreakTime={setTimeBreakTime}
           />
         </TabPanel>
         <TabPanel value={value} index={1} dir={theme.direction}>

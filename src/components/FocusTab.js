@@ -19,10 +19,13 @@ function Stopwatch(props) {
     countingTimeData,
     isBreak,
     setIsBreak,
-    timeData,
     setCounting,
     setCountingTimeData,
+    nOfCycles,
+    focus,
+    breakTime,
   } = props;
+  const timeData = { nOfCycles, breakTime, focus };
   function stopSession() {
     setTicking(false);
     setCountingTimeData({
@@ -137,41 +140,47 @@ export default function FocusTab(props) {
     ticking,
     isBreak,
     setIsBreak,
-    timeData,
-    setTimeData,
-    countingTimeData,
-    setCountingTimeData,
+
+    nOfCycles,
+    focus,
+    breakTime,
+    timeNOfCycles,
+    timeFocus,
+    timeBreakTime,
+    setNOfCycles,
+    setFocus,
+    setBreakTime,
+    //
+    setTimeNOfCycles,
+    setTimeFocus,
+    setTimeBreakTime,
   } = props;
 
   const startSession = () => {
     setCounting(true);
-    const data = {
-      timeNOfCycles: parseInt(timeData.nOfCycles),
-      timeFocus: parseInt(timeData.focus),
-      timeBreakTime: parseInt(timeData.breakTime),
-    };
     setIsBreak(false);
-    setCountingTimeData(data);
+    setTimeNOfCycles(parseInt(timeData.nOfCycles));
+    setTimeFocus(parseInt(timeData.focus));
+    setTimeBreakTime(parseInt(timeData.breakTime));
   };
-  const stopSession = () => {
-    setCounting(false);
-    setTicking(false);
-    chrome.storage.local.get("intervalID", function ({ intervalID }) {
-      clearInterval(intervalID);
-    });
-    setCountingTimeData({
-      timeNOfCycles: 0,
-      timeBreakTime: 0,
-      timeFocus: 0,
-    });
+
+  const countingTimeData = {
+    timeNOfCycles,
+    timeFocus,
+    timeBreakTime,
   };
+  function setCountingTimeData({ timeNOfCycles, timeFocus, timeBreakTime }) {
+    setTimeNOfCycles(timeNOfCycles);
+    setTimeFocus(timeFocus);
+    setTimeBreakTime(timeBreakTime);
+  }
+  const timeData = { nOfCycles, focus, breakTime };
 
   return (
     <>
       {counting ? (
         <Stopwatch
-          timeData={timeData}
-          setTimeData={setTimeData}
+          // timeData={timeData}
           setTicking={setTicking}
           ticking={ticking}
           countingTimeData={countingTimeData}
@@ -179,24 +188,37 @@ export default function FocusTab(props) {
           isBreak={isBreak}
           setCounting={setCounting}
           setIsBreak={setIsBreak}
+          nOfCycles={nOfCycles}
+          breakTime={breakTime}
+          focus={focus}
         />
       ) : (
-        <>
-          {console.log("counting has not appear yet ")}
-          <ConfigurationMode
-            startSession={startSession}
-            setTimeData={setTimeData}
-            timeData={timeData}
-          />
-        </>
+        <ConfigurationMode
+          startSession={startSession}
+          setNOfCycles={setNOfCycles}
+          setFocus={setFocus}
+          setBreakTime={setBreakTime}
+          // timeData={timeData}
+          nOfCycles={nOfCycles}
+          breakTime={breakTime}
+          focus={focus}
+        />
       )}
     </>
   );
 }
 
 function ConfigurationMode(props) {
-  const { startSession, setTimeData, timeData } = props;
-
+  const {
+    startSession,
+    setNOfCycles,
+    setBreakTime,
+    setFocus,
+    nOfCycles,
+    breakTime,
+    focus,
+  } = props;
+  const timeData = { nOfCycles, breakTime, focus };
   return (
     <div
       style={{
@@ -231,12 +253,7 @@ function ConfigurationMode(props) {
                   type="number"
                   size="small"
                   value={timeData ? timeData.nOfCycles : 1}
-                  onChange={(e) =>
-                    setTimeData((c) => ({
-                      ...c,
-                      nOfCycles: parseInt(e.target.value),
-                    }))
-                  }
+                  onChange={(e) => setNOfCycles(parseInt(e.target.value))}
                   defaultValue={timeData ? timeData.nOfCycles : 0}
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{
@@ -278,12 +295,8 @@ function ConfigurationMode(props) {
                   size="small"
                   value={timeData ? second_to_number_print(timeData.focus) : 0}
                   onChange={(e) =>
-                    setTimeData((c) => ({
-                      ...c,
-                      focus: minute_to_number_print(e.target.value),
-                    }))
+                    setFocus(minute_to_number_print(e.target.value))
                   }
-                  defaultValue={timeData ? timeData.focus : 0}
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{
                     shrink: true,
@@ -325,13 +338,9 @@ function ConfigurationMode(props) {
                   value={
                     timeData ? second_to_number_print(timeData.breakTime) : 0
                   }
-                  onChange={(e) =>
-                    setTimeData((c) => ({
-                      ...c,
-                      breakTime: minute_to_number_print(e.target.value),
-                    }))
-                  }
-                  defaultValue={timeData ? timeData.breakTime : 0}
+                  onChange={(e) => {
+                    setBreakTime(minute_to_number_print(e.target.value));
+                  }}
                   inputProps={{ style: { width: 70 } }}
                   InputLabelProps={{
                     shrink: true,
