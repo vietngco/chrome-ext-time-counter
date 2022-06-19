@@ -46,7 +46,7 @@ function a11yProps(index) {
 }
 
 export default function HomePage() {
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = useStoragelocalHook("tabIndex", 0);
   const theme = useTheme();
   const [counting, setCounting] = useStoragelocalHook("counting", false);
   const [ticking, setTicking] = useStoragelocalHook("ticking", false);
@@ -67,25 +67,26 @@ export default function HomePage() {
   React.useEffect(() => {
     async function getFromStorage() {
       const data = await chrome.storage.local.get([
-        "counting",
-        "ticking",
-        "isBreak",
-        "breakTime",
-        "focus",
-        "nOfCycles",
+        // "counting",
+        // "ticking",
+        // "isBreak",
+        // "breakTime",
+        // "focus",
+        // "nOfCycles",
         "timeNOfCycles",
         "timeFocus",
         "timeBreakTime",
+        // "tabIndex",
       ]);
       // console.log("GETTING FROM THE storage in the home page");
 
       // console.log(data);
-      setCounting(data.counting);
-      setTicking(data.ticking);
-      setIsBreak(data.isBreak);
-      setNOfCycles(data.nOfCycles);
-      setBreakTime(data.breakTime);
-      setFocus(data.focus);
+      // setCounting(data.counting);
+      // setTicking(data.ticking);
+      // setIsBreak(data.isBreak);
+      // setNOfCycles(data.nOfCycles);
+      // setBreakTime(data.breakTime);
+      // setFocus(data.focus);
       setTimeNOfCycles(data.timeNOfCycles);
       setTimeBreakTime(data.timeBreakTime);
       setTimeFocus(data.timeFocus);

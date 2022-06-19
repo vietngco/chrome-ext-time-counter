@@ -33,7 +33,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "mybuild": "webpack --config webpack.prod.js",
-    "mydev": "webpack --watch --config webpack.dev.js"
+    "mydev": "webpack --watch --config webpack.prod.js"
   },
   "eslintConfig": {
     "extends": [
