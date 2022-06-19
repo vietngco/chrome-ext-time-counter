@@ -201,9 +201,13 @@ function keepAliveForced() {
 }
 
 async function keepAlive(forceRun) {
-  const { ticking } = await chrome.storage.local.get("ticking");
-  // no ticking and no force run -> not run
-  if (!ticking && !forceRun) return; // when it is not ticking for a while -> keep alive will not run hte port will be closed
+  const { ticking, wantToBlock } = await chrome.storage.local.get([
+    "ticking",
+    "wantToBlock",
+  ]);
+  // (no ticking or no site blocking) and no force run -> not run
+  // ticking blocking force run
+  if ((!ticking || !wantToBlock) && !forceRun) return; // when it is not ticking for a while -> keep alive will not run hte port will be closed
   if (lifeline) return;
   console.log("keep alive is called");
   for (const tab of await chrome.tabs.query({ url: "*://*/*" })) {

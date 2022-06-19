@@ -8,10 +8,13 @@ import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import WorkIcon from "@mui/icons-material/Work";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
-import { Divider, TextField, Button } from "@mui/material";
+import { Divider, TextField, Button, Typography } from "@mui/material";
 import { useState } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
-
+import TimerLinearProgress from "./timer/TimerLinearProgress";
+import CountDownCircleTime from "./timer/CountDownCircleTime";
+import CyclesStepper from "./timer/CyclesStepper";
+import { Box } from "@mui/material";
 function Stopwatch(props) {
   const {
     setTicking,
@@ -62,68 +65,41 @@ function Stopwatch(props) {
       style={{
         width: "100%",
         display: "flex",
-        alignItems: "center",
         flexDirection: "column",
       }}
     >
-      <div>
-        <div>n of cycle: {countingTimeData.timeNOfCycles} left</div>
-      </div>
-      {isBreak ? (
-        <div>
-          running BREAK time: {second_to_minute(countingTimeData.timeBreakTime)}
-          <CountdownCircleTimer
-            isPlaying={false}
-            duration={timeData.breakTime}
-            colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-            colorsTime={[
-              timeData.breakTime,
-              Math.floor(timeData.breakTime * 0.5),
-              Math.floor(timeData.breakTime * 0.2),
-              0,
-            ]}
-          >
-            {({ remainingTime }) =>
-              second_to_minute(countingTimeData.timeBreakTime)
-            }
-          </CountdownCircleTimer>
-        </div>
+      {/* {isBreak ? (
+        <TimerLinearProgress
+          currentValue={countingTimeData.timeBreakTime}
+          totalValue={timeData.breakTime}
+        />
       ) : (
-        <div>
-          running FOCUS time: {second_to_minute(countingTimeData.timeFocus)}
-          <CountdownCircleTimer
-            isPlaying={false}
-            duration={timeData.focus}
-            colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-            initialRemainingTime={countingTimeData.timeFocus}
-            colorsTime={[
-              timeData.focus,
-              Math.floor(timeData.focus * 0.5),
-              Math.floor(timeData.focus * 0.2),
-              0,
-            ]}
-          >
-            {({ remainingTime }) =>
-              second_to_minute(countingTimeData.timeFocus)
-            }
-          </CountdownCircleTimer>
-        </div>
-      )}
-
-      <div>
-        <button onClick={startHandler} disabled={ticking}>
+        <TimerLinearProgress
+          currentValue={countingTimeData.timeFocus}
+          totalValue={timeData.focus}
+        />
+      )} */}
+      <CountDownCircleTime
+        timeData={timeData}
+        countingTimeData={countingTimeData}
+        isBreak={isBreak}
+      />
+      <br />
+      <Box sx={{ display: "flex", justifyContent: "space-around" }}>
+        <Typography variant>There are 2 sites blocked </Typography>
+        <Button variant="contained" onClick={startHandler} disabled={ticking}>
           {countingTimeData.timeFocus < timeData.focus ||
           countingTimeData.timeBreakTime < timeData.breakTime
-            ? "continue"
+            ? "cont"
             : "start"}
-        </button>
-        <button onClick={stopHandler} disabled={!ticking}>
+        </Button>
+        <Button variant="contained" onClick={stopHandler} disabled={!ticking}>
           Stop
-        </button>
-        <button onClick={timerNext} disabled={ticking}>
+        </Button>
+        <Button variant="contained" onClick={timerNext} disabled={ticking}>
           Next
-        </button>
-      </div>
+        </Button>
+      </Box>
       <br />
       <Button variant="outlined" onClick={stopSession}>
         Stop current session
@@ -374,6 +350,16 @@ function ConfigurationMode(props) {
   );
 }
 
+function get_minute(time) {
+  const minute = Math.floor(time / 60);
+
+  return str_pad_left(minute, "0", 2);
+}
+function get_second(time) {
+  const minute = Math.floor(time / 60);
+  const second = time - minute * 60;
+  return str_pad_left(second, "0", 2);
+}
 function second_to_minute(time) {
   const minute = Math.floor(time / 60);
   const second = time - minute * 60;
@@ -381,7 +367,6 @@ function second_to_minute(time) {
     str_pad_left(minute, "0", 2) + ":" + str_pad_left(second, "0", 2);
   return final_time;
 }
-
 function minute_to_second(time) {
   const second = parseInt(time) * 60;
   const final_time = str_pad_left(second, "0", 2);

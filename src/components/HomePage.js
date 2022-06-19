@@ -23,11 +23,7 @@ function TabPanel(props) {
       aria-labelledby={`full-width-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 1 }}>{children}</Box>}
     </div>
   );
 }
@@ -67,26 +63,11 @@ export default function HomePage() {
   React.useEffect(() => {
     async function getFromStorage() {
       const data = await chrome.storage.local.get([
-        // "counting",
-        // "ticking",
-        // "isBreak",
-        // "breakTime",
-        // "focus",
-        // "nOfCycles",
         "timeNOfCycles",
         "timeFocus",
         "timeBreakTime",
-        // "tabIndex",
       ]);
-      // console.log("GETTING FROM THE storage in the home page");
 
-      // console.log(data);
-      // setCounting(data.counting);
-      // setTicking(data.ticking);
-      // setIsBreak(data.isBreak);
-      // setNOfCycles(data.nOfCycles);
-      // setBreakTime(data.breakTime);
-      // setFocus(data.focus);
       setTimeNOfCycles(data.timeNOfCycles);
       setTimeBreakTime(data.timeBreakTime);
       setTimeFocus(data.timeFocus);
@@ -94,7 +75,6 @@ export default function HomePage() {
 
     getFromStorage();
     const id = setInterval(() => {
-      // this is run after 1 second
       getFromStorage();
     }, 1000);
     return () => clearInterval(id);
@@ -109,7 +89,7 @@ export default function HomePage() {
   };
 
   return (
-    <Box sx={{ bgcolor: "background.paper", width: 450 }}>
+    <Box sx={{ bgcolor: "background.paper", width: 400 }}>
       <AppBar position="static">
         <Tabs
           value={value}
