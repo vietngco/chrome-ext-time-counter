@@ -12,7 +12,10 @@ import {
 
 export default function Blocksite() {
   const [currentUrl, setCurrentUrl] = useState("");
-  const [block_domains, setBlock_domains] = useState([]);
+  const [block_domains, setBlock_domains] = useStoragelocalHook(
+    "block_domains",
+    []
+  );
   const [wantToBlock, setWantToBlock] = useStoragelocalHook(
     "wantToBlock",
     false
@@ -20,7 +23,6 @@ export default function Blocksite() {
 
   async function get_domain() {
     const tabs = await chrome.tabs.query({ currentWindow: true, active: true });
-    console.log(tabs);
     let domain = domain_from_url(tabs[0].url);
     return domain;
   }
@@ -39,19 +41,13 @@ export default function Blocksite() {
 
   useEffect(() => {
     async function get_all_block_domains() {
-      const data = await chrome.storage.local.get("block_domains");
-      setBlock_domains(data.block_domains);
+      // const data = await chrome.storage.local.get("block_domains");
+      // setBlock_domains(data.block_domains);
       let domain = await get_domain();
       setCurrentUrl(domain);
     }
     get_all_block_domains();
   }, []);
-
-  useEffect(() => {
-    chrome.storage.local.set({
-      block_domains: block_domains,
-    });
-  }, [block_domains]);
 
   return (
     <>

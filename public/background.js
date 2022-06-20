@@ -10,7 +10,7 @@ let initTimeConfig = {
 
 setInterval(() => {
   chrome.storage.local.get((obj) => {
-    console.log("this is 3");
+    console.log("this is 5000 timer");
     console.log(obj);
   });
 }, 5000);
@@ -106,13 +106,13 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
         clearInterval(cur_intervalID);
 
         if (intervalID !== -1) {
-          console.log("CLEAR THE INTERVAL ID");
+          console.log("CLEAR THE INTERVAL ID when the time ends");
 
           notificationID = Math.floor(Math.random() * 1000000).toString();
           chrome.notifications.create(notificationID, {
             type: "basic",
-            iconUrl: "./logo512.png",
-            title: `${isBreak ? "break" : "focus"} session ends`,
+            iconUrl: "images/logo512.png",
+            title: `${isBreak ? "BREAK" : "FOCUS"} session ends`,
             message: "You are awesome!",
             priority: 2,
             silent: false,
@@ -137,6 +137,7 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
     return true;
   }
   if (type === "press-halt-ticking") {
+    console.log("viet");
     chrome.storage.local.get(["intervalID"], function ({ intervalID }) {
       console.log("clear the intervalid by pressing the button");
       clearInterval(intervalID);

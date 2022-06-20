@@ -10,7 +10,7 @@ let initTimeConfig = {
 
 setInterval(() => {
   chrome.storage.local.get((obj) => {
-    console.log("this is 3");
+    console.log("this is 5000 timer");
     console.log(obj);
   });
 }, 5000);
@@ -69,18 +69,9 @@ chrome.storage.local.get(
 
 chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
   const { type, payload } = rq;
-  if (type === "update-timing-from-storage") {
-    chrome.storage.local.get(
-      ["timeNOfCycles", "timeBreakTime", "timeFocus"],
-      function (result) {
-        sendResponse(result);
-      }
-    );
-    return true;
-  }
   if (type === "start-ticking") {
-    const { time, isBreak } = payload;
     console.log("START TICKING ....", time, isBreak);
+    const { time, isBreak } = payload;
     let cur_intervalID = -1;
     if (isBreak) {
       cur_intervalID = setInterval(() => {
@@ -111,7 +102,7 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
           notificationID = Math.floor(Math.random() * 1000000).toString();
           chrome.notifications.create(notificationID, {
             type: "basic",
-            iconUrl: "./logo512.png",
+            iconUrl: "./images/logo512.png",
             title: `${isBreak ? "break" : "focus"} session ends`,
             message: "You are awesome!",
             priority: 2,
@@ -234,6 +225,7 @@ function injectedFunction() {
   document.body.appendChild(newAudioDiv);
   console.log("CALLING THE INJECTED FUNCTION");
 }
+
 async function injectContentHtml() {
   // try all tabs until one tab works
   for (const tab of await chrome.tabs.query({ url: "*://*/*" })) {

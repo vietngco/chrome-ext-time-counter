@@ -8,13 +8,23 @@ import Avatar from "@mui/material/Avatar";
 import ImageIcon from "@mui/icons-material/Image";
 import WorkIcon from "@mui/icons-material/Work";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
-import { Divider, TextField, Button, Typography } from "@mui/material";
+import {
+  Divider,
+  TextField,
+  Button,
+  Typography,
+  IconButton,
+} from "@mui/material";
 import { useState } from "react";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import TimerLinearProgress from "./timer/TimerLinearProgress";
 import CountDownCircleTime from "./timer/CountDownCircleTime";
 import CyclesStepper from "./timer/CyclesStepper";
 import { Box } from "@mui/material";
+import useStoragelocalHook from "../hooks/useStorageSyncHook";
+import PauseIcon from "@mui/icons-material/Pause";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import KeyboardTabIcon from "@mui/icons-material/KeyboardTab";
 function Stopwatch(props) {
   const {
     setTicking,
@@ -29,6 +39,10 @@ function Stopwatch(props) {
     breakTime,
   } = props;
   const timeData = { nOfCycles, breakTime, focus };
+  const [block_domains, setBlock_domains] = useStoragelocalHook(
+    "block_domains",
+    []
+  );
   function stopSession() {
     setTicking(false);
     setCountingTimeData({
@@ -39,6 +53,7 @@ function Stopwatch(props) {
     setCounting(false);
   }
   const startHandler = async () => {
+    console.log("click the start-ticking, sending the message");
     const data = await chrome.runtime.sendMessage({
       type: "start-ticking",
       payload: {
@@ -59,6 +74,7 @@ function Stopwatch(props) {
   };
   function timerNext() {
     setIsBreak((c) => !c);
+    setTicking(false);
   }
   return (
     <div
@@ -68,37 +84,43 @@ function Stopwatch(props) {
         flexDirection: "column",
       }}
     >
-      {/* {isBreak ? (
-        <TimerLinearProgress
-          currentValue={countingTimeData.timeBreakTime}
-          totalValue={timeData.breakTime}
-        />
-      ) : (
-        <TimerLinearProgress
-          currentValue={countingTimeData.timeFocus}
-          totalValue={timeData.focus}
-        />
-      )} */}
       <CountDownCircleTime
         timeData={timeData}
         countingTimeData={countingTimeData}
         isBreak={isBreak}
       />
       <br />
-      <Box sx={{ display: "flex", justifyContent: "space-around" }}>
-        <Typography variant>There are 2 sites blocked </Typography>
-        <Button variant="contained" onClick={startHandler} disabled={ticking}>
-          {countingTimeData.timeFocus < timeData.focus ||
-          countingTimeData.timeBreakTime < timeData.breakTime
-            ? "cont"
-            : "start"}
-        </Button>
-        <Button variant="contained" onClick={stopHandler} disabled={!ticking}>
-          Stop
-        </Button>
-        <Button variant="contained" onClick={timerNext} disabled={ticking}>
-          Next
-        </Button>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          flexDirection: "column",
+        }}
+      >
+        <Typography variant align="center">
+          There are {block_domains.length} sites blocked!
+        </Typography>
+        <br />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-evenly",
+          }}
+        >
+          <IconButton onClick={startHandler} disabled={ticking}>
+            {/* {countingTimeData.timeFocus < timeData.focus ||
+            countingTimeData.timeBreakTime < timeData.breakTime
+              ? "cont"
+              : "start"} */}
+            <PlayArrowIcon />
+          </IconButton>
+          <IconButton onClick={stopHandler} disabled={!ticking}>
+            <PauseIcon />
+          </IconButton>
+          <IconButton onClick={timerNext} disabled={ticking}>
+            <KeyboardTabIcon />
+          </IconButton>
+        </Box>
       </Box>
       <br />
       <Button variant="outlined" onClick={stopSession}>
@@ -130,6 +152,8 @@ export default function FocusTab(props) {
     setTimeNOfCycles,
     setTimeFocus,
     setTimeBreakTime,
+
+    //
   } = props;
 
   const startSession = () => {

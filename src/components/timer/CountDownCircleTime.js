@@ -10,6 +10,10 @@ export default function CountDownCircleTime(props) {
   const runTime = isBreak
     ? countingTimeData.timeBreakTime
     : countingTimeData.timeFocus;
+
+  console.log("isbreak", isBreak);
+  console.log("duration", duration);
+  console.log("runtime", runTime);
   return (
     <Box
       sx={{
