@@ -1,7 +1,5 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const WriteFilePlugin = require("write-file-webpack-plugin");
 const path = require("path");
 
 module.exports = {
@@ -25,14 +23,10 @@ module.exports = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin({
-      cleanStaleWebpackAssets: false,
-    }),
     new HtmlWebpackPlugin({ template: "./src/index.html" }),
     new CopyPlugin({
       patterns: [{ from: "public2", to: "." }],
     }),
-    new WriteFilePlugin(),
   ],
   output: {
     path: path.resolve(__dirname, "dist"),

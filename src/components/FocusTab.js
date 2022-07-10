@@ -51,9 +51,12 @@ function Stopwatch(props) {
       timeFocus: 0,
     });
     setCounting(false);
+    chrome.runtime.sendMessage({
+      type: "press-halt-ticking",
+      payload: null,
+    });
   }
   const startHandler = async () => {
-    console.log("click the start-ticking, sending the message");
     const data = await chrome.runtime.sendMessage({
       type: "start-ticking",
       payload: {
@@ -63,6 +66,7 @@ function Stopwatch(props) {
         isBreak: isBreak,
       },
     });
+
     setTicking(true);
   };
   const stopHandler = async () => {
@@ -88,6 +92,7 @@ function Stopwatch(props) {
         timeData={timeData}
         countingTimeData={countingTimeData}
         isBreak={isBreak}
+        ticking={ticking}
       />
       <br />
       <Box
@@ -107,15 +112,8 @@ function Stopwatch(props) {
             justifyContent: "space-evenly",
           }}
         >
-          <IconButton onClick={startHandler} disabled={ticking}>
-            {/* {countingTimeData.timeFocus < timeData.focus ||
-            countingTimeData.timeBreakTime < timeData.breakTime
-              ? "cont"
-              : "start"} */}
-            <PlayArrowIcon />
-          </IconButton>
-          <IconButton onClick={stopHandler} disabled={!ticking}>
-            <PauseIcon />
+          <IconButton onClick={ticking ? stopHandler : startHandler}>
+            {ticking ? <PauseIcon /> : <PlayArrowIcon />}
           </IconButton>
           <IconButton onClick={timerNext} disabled={ticking}>
             <KeyboardTabIcon />

@@ -5,7 +5,7 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import CyclesStepper from "./CyclesStepper";
 
 export default function CountDownCircleTime(props) {
-  const { timeData, countingTimeData, isBreak } = props;
+  const { timeData, countingTimeData, isBreak, ticking } = props;
   const duration = isBreak ? timeData.breakTime : timeData.focus;
   const runTime = isBreak
     ? countingTimeData.timeBreakTime
@@ -27,18 +27,26 @@ export default function CountDownCircleTime(props) {
       <CyclesStepper />
       <br />
       <CountdownCircleTimer
-        isPlaying={false}
+        isPlaying={ticking}
         strokeWidth={20}
         trailStrokeWidth={20}
+        initialRemainingTime={runTime}
         size={220}
         duration={duration}
         colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
         colorsTime={[
           timeData.focus,
-          Math.floor(duration * 0.8),
-          Math.floor(duration * 0.3),
+          Math.floor(duration * 0.6),
+          Math.floor(duration * 0.2),
           0,
         ]}
+        onComplete={() => {
+          console.log("clock is done");
+          return {
+            newInitialRemainingTime: runTime,
+            shouldRepeat: false,
+          };
+        }}
       >
         {({ remainingTime }) => (
           <Box

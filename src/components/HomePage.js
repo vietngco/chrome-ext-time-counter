@@ -66,8 +66,11 @@ export default function HomePage() {
         "timeNOfCycles",
         "timeFocus",
         "timeBreakTime",
+        "ticking",
+        "isBreak",
       ]);
-
+      setTicking(data.ticking);
+      setIsBreak(data.isBreak);
       setTimeNOfCycles(data.timeNOfCycles);
       setTimeBreakTime(data.timeBreakTime);
       setTimeFocus(data.timeFocus);

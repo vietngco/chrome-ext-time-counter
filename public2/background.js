@@ -13,7 +13,7 @@ setInterval(() => {
     console.log("this is 5000 timer");
     console.log(obj);
   });
-}, 5000);
+}, 15000);
 
 chrome.storage.local.get(
   [
@@ -70,8 +70,8 @@ chrome.storage.local.get(
 chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
   const { type, payload } = rq;
   if (type === "start-ticking") {
-    console.log("START TICKING ....", time, isBreak);
     const { time, isBreak } = payload;
+    console.log("START TICKING in the background....", time, isBreak);
     let cur_intervalID = -1;
     if (isBreak) {
       cur_intervalID = setInterval(() => {
@@ -89,21 +89,23 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
           chrome.storage.local.set({ timeFocus: parseInt(timeFocus) - 1 });
         });
       }, 1000);
-      keepAlive(true);
     }
+
     chrome.storage.local.set({ intervalID: cur_intervalID });
-    setTimeout(() => {
+    const timeoutID = setTimeout(() => {
       chrome.storage.local.get("intervalID", function ({ intervalID }) {
         clearInterval(cur_intervalID);
 
         if (intervalID !== -1) {
           console.log("CLEAR THE INTERVAL ID");
 
-          notificationID = Math.floor(Math.random() * 1000000).toString();
+          let notificationID = Math.floor(Math.random() * 1000000).toString();
           chrome.notifications.create(notificationID, {
             type: "basic",
             iconUrl: "./images/logo512.png",
-            title: `${isBreak ? "break" : "focus"} session ends`,
+            title: `${
+              isBreak ? "break" : "focus "
+            } session ends ${notificationID}`,
             message: "You are awesome!",
             priority: 2,
             silent: false,
@@ -124,15 +126,23 @@ chrome.runtime.onMessage.addListener(function (rq, sender, sendResponse) {
         }
       });
     }, time * 1000);
+    console.log("THIS IS TIEMOUTID", timeoutID);
+    chrome.storage.local.set({ timeoutID: timeoutID });
+
     sendResponse();
+    keepAlive(true);
     return true;
   }
   if (type === "press-halt-ticking") {
-    chrome.storage.local.get(["intervalID"], function ({ intervalID }) {
-      console.log("clear the intervalid by pressing the button");
-      clearInterval(intervalID);
-      chrome.storage.local.set({ intervalID: -1 });
-    });
+    chrome.storage.local.get(
+      ["intervalID", "timeoutID"],
+      function ({ intervalID, timeoutID }) {
+        console.log("clear the intervalid by pressing the button");
+        clearInterval(intervalID);
+        clearTimeout(timeoutID);
+        chrome.storage.local.set({ intervalID: -1 });
+      }
+    );
     sendResponse();
     return true;
   }
